@@ -10,7 +10,7 @@ var connections = [];
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
 
-server.listen(process.env.PORT || 8080);
+server.listen(process.env.PORT);
 console.log('Server running at port ' + '8080' || "" + process.env.PORT);
 
 app.get('/', function(req, res) {
