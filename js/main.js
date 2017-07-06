@@ -1,12 +1,12 @@
 'use strict';
 
-// var configuration = {
-//   'iceServers': [{
-//     'urls': 'stun:stun.l.google.com:19302'
-//   }]
-// };
+var configuration = {
+  'iceServers': [{
+    'urls': 'stun:stun.l.google.com:19302'
+  }]
+};
 
-var configuration = null;
+// var configuration = null;
 var localStream;
 
 // HTML elements //
@@ -214,8 +214,10 @@ function onDataChannelCreated(channel) {
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
-  channel.onmessage = (adapter.browserDetails.browser === 'firefox') ?
-  receiveDataFirefoxFactory() : receiveDataChromeFactory();
+  // channel.onmessage = (adapter.browserDetails.browser === 'firefox') ?
+  // receiveDataFirefoxFactory() : receiveDataChromeFactory();
+
+  channel.onmessage = receiveDataChromeFactory();
 }
 
 function receiveDataChromeFactory() {
