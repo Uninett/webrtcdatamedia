@@ -1,27 +1,25 @@
 'use strict'
 
 var express = require('express');
-var server = require('https');
-var pem = require('pem');
+var app = express();
+var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var path = require("path");
 var connections = [];
 
-pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
-  var app = express();
+// The default namespace is by default '/', but this variable is to use with numClientsInRoom
+var defaultNamespace = '/';
 
-  app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/index.html')
-  });
+server.listen(8080);
+console.log('Server running at port ' + '8080');
 
-  // The default namespace is by default '/', but this variable is to use with numClientsInRoom
-  var defaultNamespace = '/';
-  app.use('/js', express.static(path.join(__dirname, '/js')));
-  app.use('/styles', express.static(path.join(__dirname, '/styles')));
-
-  server.createServer({key: keys.serviceKey, cert: keys.certificate}, app).listen(8080);
-  console.log('Server running at port ' + '8080');
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/index.html')
 });
+
+app.use('/js', express.static(path.join(__dirname, '/js')));
+app.use('/styles', express.static(path.join(__dirname, '/styles')));
+
 
 io.sockets.on('connection', function(socket) {
   connections.push(socket);
