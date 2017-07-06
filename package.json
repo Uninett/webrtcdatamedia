@@ -1,0 +1,18 @@
+{
+  "name": "peeraudio",
+  "version": "1.0.0",
+  "description": "Project to send audio peer to peer using webrtc and sockets",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hung Quang Thieu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "webrtc-adapter": "^4.0.2"
+  }
+}

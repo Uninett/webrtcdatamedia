@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>WebRTC Audio</title>
+  <link href="styles/main.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <div id="container">
+    <h1> Datachannel audio buffer test </h1>
+
+    <!-- <div id="audio">
+      <audio id="localAudio" controls autoplay></audio>
+      <audio id="remoteAudio" controls autoplay></audio>
+    </div> -->
+
+    <div id="buttons">
+      <button id="recordBtn" disabled> Record </button>
+      <button id="stopBtn" disabled> Stop </button>
+    </div>
+
+    <section class="local-clips">
+
+    </section>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
