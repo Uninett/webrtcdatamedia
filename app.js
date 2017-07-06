@@ -1,9 +1,9 @@
 'use strict'
 
 var express = require('express');
-var server = require('https');
+var https = require('https');
+var io = require('socket.io').listen(https);
 var pem = require('pem');
-var io = require('socket.io').listen(server);
 var path = require("path");
 var connections = [];
 
@@ -19,7 +19,7 @@ pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
   app.use('/js', express.static(path.join(__dirname, '/js')));
   app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-  server.createServer({key: keys.serviceKey, cert: keys.certificate}, app).listen(8080);
+  var server = https.createServer({key: keys.serviceKey, cert: keys.certificate}, app).listen(8080);
   console.log('Server running at port ' + '8080');
 });
 
