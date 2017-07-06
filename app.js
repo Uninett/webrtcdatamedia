@@ -11,7 +11,7 @@ var connections = [];
 var defaultNamespace = '/';
 
 server.listen(process.env.PORT);
-console.log('Server running at port ' + '8080' || "" + process.env.PORT);
+console.log('Server running at port ' + process.env.PORT);
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html')
