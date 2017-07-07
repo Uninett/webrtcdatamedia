@@ -1,27 +1,26 @@
 'use strict'
 
 var express = require('express');
-var http = require('http');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
 var path = require('path');
 var connections = [];
-var app = express();
+
+// The default namespace is by default '/', but this variable is to use with numClientsInRoom
+var defaultNamespace = '/';
+
+server.listen(8080);
+console.log('Server running at port ' + '8080');
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html')
 });
 
-// The default namespace is by default '/', but this variable is to use with numClientsInRoom
-var defaultNamespace = '/';
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-var server = http.createServer(app);
-var io = require('socket.io').listen(server);
 
-server.listen(8080);
-console.log('Server running at port 8080');
-
-// Socket.IO listeners starts here //
 io.sockets.on('connection', function(socket) {
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
@@ -64,10 +63,9 @@ io.sockets.on('connection', function(socket) {
       // Max two clients for now
       socket.emit('full', room);
     }
+
   });
 });
-
-
 
 /* Function to find out how many clients there are in a room
    Used to minimize each room to contain x clients */
