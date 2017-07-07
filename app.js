@@ -18,7 +18,7 @@ pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
   app.use('/js', express.static(path.join(__dirname, '/js')));
   app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-  var server = https.createServer({key: keys.serviceKey, cert: keys.certificate, ca: keys.csr}, app).listen(8080);
+  var server = https.createServer({key: keys.serviceKey, cert: keys.certificate}, app).listen(8080);
   var io = require('socket.io').listen(server);
   console.log('Server running at port ' + '8080');
 
