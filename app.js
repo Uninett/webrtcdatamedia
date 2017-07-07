@@ -8,14 +8,6 @@ var path = require('path');
 var connections = [];
 var app = express();
 
-var privateKey = fs.readFileSync('/etc/letsencrypt/live/webrtc-stud.uninett.no/privkey.pem', 'utf8');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/webrtc-stud.uninett.no/cert.pem', 'utf8');
-
-var credentials = {
-  key: privateKey,
-  cert: certificate
-}
-
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html')
 });
@@ -25,10 +17,9 @@ var defaultNamespace = '/';
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-var httpServer = http.createServer(app).listen(8080);
-var httpsServer = http.createServer(credentials, app).listen(8443);
+var server = http.createServer(app).listen(8080);
 
-var io = require('socket.io').listen(httpsServer);
+var io = require('socket.io').listen(server);
 // console.log('Server running at port 8080');
 
 // Socket.IO listeners starts here //
