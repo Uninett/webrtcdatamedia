@@ -4,11 +4,6 @@
 <head>
   <title>WebRTC Audio</title>
   <link href="styles/main.css" rel="stylesheet" type="text/css">
-  <script>
-    document.addEventListener("DOMContentLoaded", function(){
-    console.log('Loaded');
-    });
-  </script>
 </head>
 
 <body>
@@ -31,8 +26,14 @@
   </div>
 
   <script src="js/main.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"></script>
+
+  <script>
+    $(document).ready(function() {
+      $.getScript("/socket.io/socket.io.js");
+    });
+  </script>
 </body>
 
 </html>
