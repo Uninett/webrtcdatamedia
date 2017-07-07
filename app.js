@@ -1,9 +1,7 @@
 'use strict'
 
-var fs = require('fs');
 var express = require('express');
 var http = require('http');
-var https = require('https');
 var path = require('path');
 var connections = [];
 var app = express();
@@ -18,9 +16,9 @@ app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
 var server = http.createServer(app).listen(8080);
+console.log('Server running at port 8080');
 
 var io = require('socket.io').listen(server);
-// console.log('Server running at port 8080');
 
 // Socket.IO listeners starts here //
 io.sockets.on('connection', function(socket) {

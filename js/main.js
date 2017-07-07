@@ -32,9 +32,10 @@ var room = 'test';
 /*******************************************************************************
 * Signaling Server
 *******************************************************************************/
-
-//Connect to the signaling server
-var socket = io.connect();
+window.onload = function(){
+  //Connect to the signaling server
+  var socket = io.connect();
+}
 
 // Listens to the servers console logs
 socket.on('log', function(array) {
