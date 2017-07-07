@@ -1,5 +1,5 @@
 'use strict';
-
+console.log('loaded?');
 var configuration = {
   'iceServers': [{
     'urls': 'stun:stun.l.google.com:19302'
