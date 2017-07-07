@@ -31,57 +31,53 @@ var room = 'test';
 /*******************************************************************************
 * Signaling Server
 *******************************************************************************/
+//Connect to the signaling server
+var socket = io.connect();
 
-function initSocket() {
-  //Connect to the signaling server
-  var socket = io.connect();
-  console.log('Socket connected');
+// Listens to the servers console logs
+socket.on('log', function(array) {
+  console.log.apply(console, array);
+});
 
-  // Listens to the servers console logs
-  socket.on('log', function(array) {
-    console.log.apply(console, array);
-  });
+// The client tries to create or join a room, only if the room is not blank
+if (room !== '') {
+  socket.emit('create or join', room);
+  console.log('Attempted to create or  join room', room);
+}
 
-  // The client tries to create or join a room, only if the room is not blank
-  if (room !== '') {
-    socket.emit('create or join', room);
-    console.log('Attempted to create or  join room', room);
-  }
+socket.on('created', function(room, clientId) {
+  console.log('Created room ' + room);
+  isInitiator = true;
+  getAudio();
+});
 
-  socket.on('created', function(room, clientId) {
-    console.log('Created room ' + room);
-    isInitiator = true;
-    getAudio();
-  });
+socket.on('joined', function(room, clientId) {
+  console.log('joined ' + room);
+  isInitiator = false;
+  createPeerConnection(isInitiator, configuration);
+  getAudio();
+});
 
-  socket.on('joined', function(room, clientId) {
-    console.log('joined ' + room);
-    isInitiator = false;
-    createPeerConnection(isInitiator, configuration);
-    getAudio();
-  });
+socket.on('full', function(room, clientId) {
 
-  socket.on('full', function(room, clientId) {
+});
 
-  });
+socket.on('ready', function() {
+  console.log('Socket is ready');
+  createPeerConnection(isInitiator, configuration);
+});
 
-  socket.on('ready', function() {
-    console.log('Socket is ready');
-    createPeerConnection(isInitiator, configuration);
-  });
+socket.on('message', function(message) {
+  console.log('Client received message:', message);
+  signalingMessageCallback(message);
+});
 
-  socket.on('message', function(message) {
-    console.log('Client received message:', message);
-    signalingMessageCallback(message);
-  });
-
-  /**
-  * Send message to signaling server
-  */
-  function sendMessage(message) {
-    console.log('Client sending message: ', message);
-    socket.emit('message', message);
-  }
+/**
+* Send message to signaling server
+*/
+function sendMessage(message) {
+  console.log('Client sending message: ', message);
+  socket.emit('message', message);
 }
 
 /****************************************************************************
@@ -107,8 +103,6 @@ function gotStream(stream) {
     console.log('Using Audio device: ' + audioTracks[0].label);
     console.log(localStream.active);
   }
-
-  initSocket();
 
   var mediaRecorder = new MediaRecorder(localStream);
   var chunks = [];
