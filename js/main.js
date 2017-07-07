@@ -1,10 +1,5 @@
 'use strict';
 
-window.onload = function() {
-  //Connect to the signaling server
-  var socket = io.connect();
-}
-
 var configuration = {
   'iceServers': [{
     'urls': 'stun:stun.l.google.com:19302'
@@ -37,6 +32,8 @@ var room = 'test';
 /*******************************************************************************
 * Signaling Server
 *******************************************************************************/
+//Connect to the signaling server
+var socket = io.connect();
 
 // Listens to the servers console logs
 socket.on('log', function(array) {
