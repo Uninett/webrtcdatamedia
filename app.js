@@ -15,10 +15,11 @@ var defaultNamespace = '/';
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-var server = http.createServer(app).listen(8080);
-console.log('Server running at port 8080');
-
+var server = http.createServer(app);
 var io = require('socket.io').listen(server);
+
+server.listen(8080);
+console.log('Server running at port 8080');
 
 // Socket.IO listeners starts here //
 io.sockets.on('connection', function(socket) {

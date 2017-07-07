@@ -1,9 +1,5 @@
 'use strict';
 
-window.addEventListener('load', function() {
-  console.log('All assets are loaded')
-});
-
 var configuration = {
   'iceServers': [{
     'urls': 'stun:stun.l.google.com:19302'
@@ -32,60 +28,59 @@ var isInitiator;
 // Hard coded room name for now
 var room = 'test';
 
-window.addEventListener('load', function(){
-  /*******************************************************************************
-  * Signaling Server
-  *******************************************************************************/
-  //Connect to the signaling server
-  var socket = io.connect();
 
-  // Listens to the servers console logs
-  socket.on('log', function(array) {
-    console.log.apply(console, array);
-  });
+/*******************************************************************************
+* Signaling Server
+*******************************************************************************/
+//Connect to the signaling server
+var socket = io.connect();
 
-  // The client tries to create or join a room, only if the room is not blank
-  if (room !== '') {
-    socket.emit('create or join', room);
-    console.log('Attempted to create or  join room', room);
-  }
+// Listens to the servers console logs
+socket.on('log', function(array) {
+  console.log.apply(console, array);
+});
 
-  socket.on('created', function(room, clientId) {
-    console.log('Created room ' + room);
-    isInitiator = true;
-    getAudio();
-  });
+// The client tries to create or join a room, only if the room is not blank
+if (room !== '') {
+  socket.emit('create or join', room);
+  console.log('Attempted to create or  join room', room);
+}
 
-  socket.on('joined', function(room, clientId) {
-    console.log('joined ' + room);
-    isInitiator = false;
-    createPeerConnection(isInitiator, configuration);
-    getAudio();
-  });
+socket.on('created', function(room, clientId) {
+  console.log('Created room ' + room);
+  isInitiator = true;
+  getAudio();
+});
 
-  socket.on('full', function(room, clientId) {
+socket.on('joined', function(room, clientId) {
+  console.log('joined ' + room);
+  isInitiator = false;
+  createPeerConnection(isInitiator, configuration);
+  getAudio();
+});
 
-  });
-
-  socket.on('ready', function() {
-    console.log('Socket is ready');
-    createPeerConnection(isInitiator, configuration);
-  });
-
-  socket.on('message', function(message) {
-    console.log('Client received message:', message);
-    signalingMessageCallback(message);
-  });
-
-  /**
-  * Send message to signaling server
-  */
-  function sendMessage(message) {
-    console.log('Client sending message: ', message);
-    socket.emit('message', message);
-  }
+socket.on('full', function(room, clientId) {
 
 });
+
+socket.on('ready', function() {
+  console.log('Socket is ready');
+  createPeerConnection(isInitiator, configuration);
+});
+
+socket.on('message', function(message) {
+  console.log('Client received message:', message);
+  signalingMessageCallback(message);
+});
+
+/**
+* Send message to signaling server
+*/
+function sendMessage(message) {
+  console.log('Client sending message: ', message);
+  socket.emit('message', message);
+}
+
 /****************************************************************************
 * User media (audio)
 ****************************************************************************/
