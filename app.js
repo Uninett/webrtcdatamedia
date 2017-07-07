@@ -29,7 +29,7 @@ var httpServer = http.createServer(app).listen(8080);
 var httpsServer = http.createServer(credentials, app).listen(8443);
 
 var io = require('socket.io').listen(httpsServer);
-console.log('Server running at port 8080');
+// console.log('Server running at port 8080');
 
 // Socket.IO listeners starts here //
 io.sockets.on('connection', function(socket) {
