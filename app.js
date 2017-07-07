@@ -5,8 +5,6 @@ var https = require('https');
 var pem = require('pem');
 var path = require("path");
 var connections = [];
-var serviceKey;
-var certificate;
 
 pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
   var app = express();
@@ -20,10 +18,11 @@ pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
   app.use('/js', express.static(path.join(__dirname, '/js')));
   app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-  var server = https.createServer({key: keys.serviceKey, cert: keys.certificate}, app).listen(8080);
+  var server = https.createServer({key: keys.serviceKey, cert: keys.certificate, ca: keys.csr}, app).listen(8080);
   var io = require('socket.io').listen(server);
   console.log('Server running at port ' + '8080');
 
+  // Socket.IO listeners starts here //
   io.sockets.on('connection', function(socket) {
     connections.push(socket);
     console.log('Connected: %s sockets connected', connections.length);
@@ -69,7 +68,6 @@ pem.createCertificate({days:1, selfSigned:true}, function(err, keys) {
 
     });
   });
-
 });
 
 
