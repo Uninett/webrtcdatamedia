@@ -31,10 +31,8 @@ var room = 'test';
 /*******************************************************************************
 * Signaling Server
 *******************************************************************************/
-document.addEventListener("DOMContentLoaded", function(){
-  //Connect to the signaling server
-  var socket = io.connect();
-});
+//Connect to the signaling server
+var socket = io.connect();
 
 // Listens to the servers console logs
 socket.on('log', function(array) {
