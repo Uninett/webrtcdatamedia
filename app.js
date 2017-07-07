@@ -20,7 +20,6 @@ app.get('/', function(req, res) {
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
 
-
 io.sockets.on('connection', function(socket) {
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
