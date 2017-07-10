@@ -43,9 +43,10 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('create or join', function(room) {
     // Total number of clients in the socket
-    var numClients = io.engine.clientsCount;
     log('Received request to create or join room ' + room);
-
+    console.log('Joining room: ', room);
+    // var numClients = numClientsInRoom(defaultNamespace, room);
+    var numClients = connections.length;
     if(numClients === 1) {
       socket.join(room);
       log('Client ID ' + socket.id + ' created room ' + room);
@@ -67,9 +68,11 @@ io.sockets.on('connection', function(socket) {
 
 /* Function to find out how many clients there are in a room
    Used to minimize each room to contain x clients */
-// function numClientsInRoom(namespace, room) {
-//   console.log(room);
-//   console.log(io.nsps[namespace].adapter.rooms[room].length);
-//   var clients = io.nsps[namespace].adapter.rooms[room];
-//   return clients.length;
-// }
+function numClientsInRoom(namespace, room) {
+  // console.log(room);
+  // console.log(io.nsps[namespace].adapter.rooms[room].length);
+  // var clients = io.nsps[namespace].adapter.rooms[room];
+  console.log(io.sockets.connected.Adapter);
+  // console.log(io.nsps[namespace].adapter);
+  // return clients.length;
+}
