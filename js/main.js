@@ -98,6 +98,7 @@ function getAudio(){
 function gotStream(stream) {
   console.log('Received local stream');
   localStream = stream;
+  console.log(localStream);
   var audioTracks = localStream.getAudioTracks();
   if(audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
@@ -222,26 +223,26 @@ function receiveDataChromeFactory() {
   var buf, count;
 
   return function onmessage(event) {
-    if (typeof event.data === 'string') {
-      buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
-      count = 0;
-      console.log('Expecting a total of ' + buf.byteLength + ' bytes');
-      console.log(event.data);
-      return;
-    }
+    // if (typeof event.data === 'string') {
+    //   buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
+    //   count = 0;
+    //   console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+    //   console.log(event.data);
+    //   return;
+    // }
     console.log(event.data);
     var data = new Uint8ClampedArray(event.data);
     console.log(data);
-    buf.set(data, count);
-
-    count += data.byteLength;
-    console.log('count: ' + count);
-
-    if (count === buf.byteLength) {
-      // Wer're done: all data chunks have been received
-      console.log('Done.');
-      //TODO: Receive Audio
-    }
+    // buf.set(data, count);
+    //
+    // count += data.byteLength;
+    // console.log('count: ' + count);
+    //
+    // if (count === buf.byteLength) {
+    //   // Wer're done: all data chunks have been received
+    //   console.log('Done.');
+    //   //TODO: Receive Audio
+    // }
   }
 }
 
