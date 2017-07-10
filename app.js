@@ -12,9 +12,9 @@ var defaultNamespace = '/';
 
 console.log('Server running at port ' + '8080');
 
-// app.get('/', function(req, res) {
-//   res.sendFile(__dirname + '/index.html')
-// });
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/index.html')
+});
 
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
