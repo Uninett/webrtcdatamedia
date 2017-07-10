@@ -230,11 +230,9 @@ function receiveDataChromeFactory() {
     //   console.log(event.data);
     //   return;
     // }
-    console.log(event.data);
     var data = new Uint8ClampedArray(event.data);
-    console.log(data);
     var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    console.log(blob);
+    // console.log(blob);
     receiveAudio(blob);
     // buf.set(data, count);
     //
@@ -358,7 +356,7 @@ function receiveAudio(audioblob) {
   var clipLabel = document.createElement('p');
   var audio = document.createElement('audio');
   var deleteButton = document.createElement('button');
-  var clipName = clipContainer.children.length;
+  var clipName = remoteClips.children.length;
 
   clipContainer.classList.add('clip');
   audio.setAttribute('controls', '');
