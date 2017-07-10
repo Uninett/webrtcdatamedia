@@ -26,8 +26,11 @@ var dataChannel;
 // isInitiator is the one who's creating the room
 var isInitiator;
 // Hard coded room name for now
-var room = 'test';
-
+// var room = 'test';
+var room = window.location.hash.substring(1);
+if (!room) {
+  room = window.location.hash = randomToken();
+}
 
 /*******************************************************************************
 * Signaling Server
