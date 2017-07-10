@@ -1,10 +1,9 @@
 'use strict'
 
 var express = require('express');
-var http = require('http');
 var app = express();
-var server = http.createServer(app);
-var io = require('socket.io')(http).listen(server);
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
 var path = require('path');
 var connections = [];
 
