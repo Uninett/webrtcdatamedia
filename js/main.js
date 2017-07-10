@@ -14,6 +14,7 @@ var remoteAudio = document.querySelector('#remoteAudio');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
+var remoteClips = document.querySelector('.remote-clips');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
@@ -98,7 +99,6 @@ function getAudio(){
 function gotStream(stream) {
   console.log('Received local stream');
   localStream = stream;
-  console.log(localStream);
   var audioTracks = localStream.getAudioTracks();
   if(audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
@@ -233,6 +233,9 @@ function receiveDataChromeFactory() {
     console.log(event.data);
     var data = new Uint8ClampedArray(event.data);
     console.log(data);
+    var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
+    console.log(blob);
+    receiveAudio(blob);
     // buf.set(data, count);
     //
     // count += data.byteLength;
@@ -301,6 +304,7 @@ function sendData(blob) {
 
   fileReader.onloadend = () => {
     arrayBuffer = fileReader.result;
+    console.log(arrayBuffer);
     dataChannel.send(arrayBuffer);
   }
 
@@ -346,6 +350,35 @@ function saveAudioClip(audioblob) {
 
   sendButton.onclick = function(e) {
     sendData(audioblob);
+  }
+}
+
+function receiveAudio(audioblob) {
+  var clipContainer = document.createElement('article');
+  var clipLabel = document.createElement('p');
+  var audio = document.createElement('audio');
+  var deleteButton = document.createElement('button');
+  var clipName = clipContainer.children.length;
+
+  clipContainer.classList.add('clip');
+  audio.setAttribute('controls', '');
+  deleteButton.textContent = 'Delete';
+  deleteButton.className = 'deleteBtn';
+
+  clipLabel.textContent = "Clip: " + clipName;
+
+  clipContainer.appendChild(audio);
+  clipContainer.appendChild(clipLabel);
+  clipContainer.appendChild(deleteButton);
+  remoteClips.appendChild(clipContainer);
+
+  audio.controls = true;
+  var audioURL = window.URL.createObjectURL(audioblob);
+  audio.src = audioURL;
+
+  deleteButton.onclick = function(e) {
+    var evtTgt = e.target;
+    evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
   }
 }
 
