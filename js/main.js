@@ -1,7 +1,7 @@
 'use strict';
 var configuration = {
   'iceServers': [{
-    'urls': 'stunserver.org'
+    'urls': 'stun:stunserver.org'
   }]
 };
 
