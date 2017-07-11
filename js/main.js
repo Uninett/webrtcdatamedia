@@ -63,7 +63,9 @@ socket.on('joined', function(room, clientId) {
 });
 
 socket.on('full', function(room, clientId) {
-
+  var newRoom = window.location.hash = prompt('Room ' + room + ' is full. Enter a new room name:');
+  socket.emit('create or join', newRoom);
+  console.log('Attempting to create a new room because room ' + room + ' is full.');
 });
 
 socket.on('ready', function() {
