@@ -1,7 +1,8 @@
 'use strict';
 var configuration = {
   'iceServers': [{
-    'urls': 'stun:stun.l.google.com:19302'
+    'urls': 'stun:stun.l.google.com:19302',
+    'urls': 'turn:stun.l.google.com:19302'
   }]
 };
 
