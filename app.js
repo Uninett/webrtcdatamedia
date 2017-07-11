@@ -45,11 +45,13 @@ io.sockets.on('connection', function(socket) {
     // Total number of clients in the socket
     log('Received request to create or join room ' + room);
     console.log('Joining room: ', room);
+
     // var numClients = numClientsInRoom(defaultNamespace, room);
     numClientsInRoom(defaultNamespace, room);
     var numClients = connections.length;
     if(numClients === 1) {
       socket.join(room);
+      console.log(socket.rooms);
       log('Client ID ' + socket.id + ' created room ' + room);
       socket.emit('created', room, socket.id);
 
@@ -73,7 +75,6 @@ function numClientsInRoom(namespace, room) {
   // console.log(room);
   // console.log(io.nsps[namespace].adapter.rooms[room].length);
   // var clients = io.nsps[namespace].adapter.rooms[room];
-  console.log(io.nsps[namespace].adapter.rooms);
   // console.log(io.nsps[namespace].adapter);
   // return clients.length;
 }
