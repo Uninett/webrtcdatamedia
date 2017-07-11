@@ -1,8 +1,7 @@
 'use strict';
 var configuration = {
   'iceServers': [{
-    // 'urls': 'stun:stun.l.google.com:19302'
-    'urls': 'stun:webrtc-stud.uninett.no'
+    'urls': 'stun:stun.l.google.com:19302'
   }]
 };
 
