@@ -6,7 +6,6 @@ var server = require('http').createServer(app).listen(8080);
 var io = require('socket.io').listen(server);
 var path = require('path');
 var connections = [];
-var room;
 
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
@@ -31,10 +30,10 @@ io.sockets.on('connection', function(socket) {
     socket.emit('log', array);
   }
 
-  socket.on('message', function(message) {
+  socket.on('message', function(message, room) {
     log('Client said: ', message);
     // for a real app, would be room-only (not broadcast)
-    socket.broadcast.emit('message', message);
+    socket.broadcast.to(room).emit('message', message);
   });
 
   socket.on('disconnect', function(data) {
@@ -47,7 +46,6 @@ io.sockets.on('connection', function(socket) {
     log('Received request to create or join room ' + room);
     var numClients = numClientsInRoom(defaultNamespace, room);
     console.log(numClients);
-    room = room;
 
     if(numClients === 0) {
       socket.join(room);

@@ -83,7 +83,7 @@ socket.on('message', function(message) {
 */
 function sendMessage(message) {
   console.log('Client sending message: ', message);
-  socket.emit('message', message);
+  socket.emit('message', message, room);
 }
 
 /****************************************************************************
@@ -107,7 +107,6 @@ function gotStream(stream) {
   var audioTracks = localStream.getAudioTracks();
   if(audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
-    console.log(localStream.active);
   }
 
   var mediaRecorder = new MediaRecorder(localStream);
@@ -194,7 +193,6 @@ function createPeerConnection(isInitiator, config) {
     peerCon.createOffer(onLocalSessionCreated, logError);
 
   } else {
-    console.log('Before datachannel');
     peerCon.ondatachannel = function(event) {
       console.log('ondatachannel:', event.channel);
       dataChannel = event.channel;
