@@ -25,8 +25,7 @@ var dataChannel;
 
 // isInitiator is the one who's creating the room
 var isInitiator;
-// Hard coded room name for now
-// var room = 'test';
+
 var room = window.location.hash.substring(1);
 if (!room) {
   room = window.location.hash = prompt('Enter a room name:');;
@@ -109,6 +108,7 @@ function gotStream(stream) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
 
+  // MediaRecorder
   var mediaRecorder = new MediaRecorder(localStream);
   var chunks = [];
   recordBtn.disabled = false;
@@ -138,6 +138,7 @@ function gotStream(stream) {
   mediaRecorder.ondataavailable = function(e) {
     chunks.push(e.data);
   }
+  // MediaRecorder ends
 }
 
 /****************************************************************************
@@ -384,9 +385,10 @@ function receiveAudio(audioblob) {
   }
 }
 
-function randomToken() {
-  return Math.floor((1 + Math.random()) * 1e16).toString(16).substring(1);
-}
+// Gives a random token to generate a random room name
+// function randomToken() {
+//   return Math.floor((1 + Math.random()) * 1e16).toString(16).substring(1);
+// }
 
 function logError(err) {
   console.log(err.toString(), err);
