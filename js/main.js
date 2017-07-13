@@ -12,6 +12,7 @@ var localStream;
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
 var liveBtn = document.querySelector('#liveBtn');
+var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
@@ -110,6 +111,7 @@ function gotStream(stream) {
   }
 
   // Live audio starts
+  liveBtn.disabled = false;
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
   var scriptNode = audioContext.createScriptProcessor(4096, 2, 2);
@@ -122,8 +124,16 @@ function gotStream(stream) {
 
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
+    stopLiveBtn.disabled = false;
     audioContextSource.connect(scriptNode);
     scriptNode.connect(audioContext.destination);
+  }
+
+  stopLiveBtn.onclick = function() {
+    audioContextSource.disconnect(scriptNode);
+    scriptNode.disconnect(audioContext.destination);
+    liveBtn.disabled = false;
+    stopLiveBtn.disabled = true;
   }
 
   // Live audio ends
