@@ -112,14 +112,15 @@ function gotStream(stream) {
 
   // Live audio starts
   liveBtn.disabled = false;
+  var chunks = [];
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
   var scriptNode = audioContext.createScriptProcessor(4096, 2, 2);
 
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
-    console.log(e.inputBuffer.getChannelData(0));
-    console.log(e.inputBuffer.getChannelData(1));
+    chunks.push(e.inputBuffer.getChannelData(0));
+    // console.log(e.inputBuffer.getChannelData(1));
   }
 
   liveBtn.onclick = function() {
@@ -132,6 +133,9 @@ function gotStream(stream) {
   stopLiveBtn.onclick = function() {
     audioContextSource.disconnect(scriptNode);
     scriptNode.disconnect(audioContext.destination);
+    var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+    console.log(chunks);
+    saveAudioClip(blob);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
   }
@@ -139,7 +143,7 @@ function gotStream(stream) {
   // Live audio ends
 
   // MediaRecorder starts
-  var mediaRecorder = new MediaRecorder(localStream);
+  var mediaRecorder = new MediaRecorder(localStream,  {mimeType : 'audio/webm; codecs=opus'});
   var chunks = [];
   recordBtn.disabled = false;
 
@@ -161,12 +165,12 @@ function gotStream(stream) {
     console.log("data available after MediaRecorder.stop() called.");
     var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
     saveAudioClip(blob);
-    console.log(blob);
     chunks = [];
   }
 
   mediaRecorder.ondataavailable = function(e) {
     chunks.push(e.data);
+    console.log(e.data);
   }
   // MediaRecorder ends
 }
