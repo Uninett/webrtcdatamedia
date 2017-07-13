@@ -12,7 +12,7 @@ A node.jo server is implemented to provider "rooms" for peers of clients to meet
 
 Currently only two member per room is supported.
 
-Server java-code is in `app.js`.
+Server JavaScript-code is in `app.js`.
 
 ### Client ###
 After loading the client page requires "vanilla" selection of a room name (of the user choice). When two clients have join a room, audio may be exchanged.
@@ -22,7 +22,7 @@ After loading the client page requires "vanilla" selection of a room name (of th
   
 All audio is forwarded across the WebRTC datachannel.
 
-Client java-code is in `js/main.js`.
+Client JavaScript-code is in `js/main.js`.
 
 ## Status ##
   
