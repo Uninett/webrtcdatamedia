@@ -108,7 +108,12 @@ function gotStream(stream) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
 
-  // MediaRecorder
+  // Live audio starts
+  var audioContext = new AudioContext();
+  var audioContextSource = audioContext.createMediaStreamSource(localStream);
+  // Live audio ends
+
+  // MediaRecorder starts
   var mediaRecorder = new MediaRecorder(localStream);
   var chunks = [];
   recordBtn.disabled = false;
