@@ -11,6 +11,7 @@ var localStream;
 // HTML elements //
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
+var liveBtn = document.querySelector('#liveBtn');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
@@ -111,6 +112,20 @@ function gotStream(stream) {
   // Live audio starts
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
+  var scriptNode = audioContext.createScriptProcessor(4096, 2, 2);
+
+  // Listens to the audiodata
+  scriptNode.onaudioprocess = function(e) {
+    console.log(e.inputBuffer.getChannelData(0));
+    console.log(e.inputBuffer.getChannelData(1));
+  }
+
+  liveBtn.onclick = function() {
+    liveBtn.disabled = true;
+    audioContextSource.connect(scriptNode);
+    scriptNode.connect(audioContext.destination);
+  }
+
   // Live audio ends
 
   // MediaRecorder starts
