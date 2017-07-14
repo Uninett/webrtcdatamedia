@@ -134,8 +134,8 @@ function gotStream(stream) {
     audioContextSource.disconnect(scriptNode);
     scriptNode.disconnect(audioContext.destination);
     var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
-    console.log(chunks);
-    saveAudioClip(blob);
+    console.log(blob);
+    // saveAudioClip(blob);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
   }
