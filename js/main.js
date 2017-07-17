@@ -115,12 +115,13 @@ function gotStream(stream) {
   var chunks = [];
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
-  var scriptNode = audioContext.createScriptProcessor(4096, 2, 2);
+  var scriptNode = audioContext.createScriptProcessor(256, 2, 2);
 
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
-    chunks.push(e.inputBuffer.getChannelData(0));
+    // chunks.push(e.inputBuffer.getChannelData(0));
     // console.log(e.inputBuffer.getChannelData(1));
+    sendLive(e.inputBuffer.getChannelData(0));
   }
 
   liveBtn.onclick = function() {
@@ -133,9 +134,6 @@ function gotStream(stream) {
   stopLiveBtn.onclick = function() {
     audioContextSource.disconnect(scriptNode);
     scriptNode.disconnect(audioContext.destination);
-    var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
-    console.log(blob);
-    // saveAudioClip(blob);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
   }
@@ -269,9 +267,10 @@ function receiveDataChromeFactory() {
     //   console.log(event.data);
     //   return;
     // }
+    // console.log(event.data);
     var data = new Uint8ClampedArray(event.data);
+    console.log(data);
     var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    // console.log(blob);
     receiveAudio(blob);
     // buf.set(data, count);
     //
@@ -346,6 +345,10 @@ function sendData(blob) {
   }
 
   fileReader.readAsArrayBuffer(blob);
+}
+
+function sendLive(arrayBuffer) {
+  dataChannel.send(arrayBuffer);
 }
 
 function saveAudioClip(audioblob) {
