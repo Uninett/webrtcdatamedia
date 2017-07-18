@@ -17,6 +17,7 @@ var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
+var liveAudio = document.querySelector('#liveAudio');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
@@ -113,15 +114,32 @@ function gotStream(stream) {
   // Live audio starts
   liveBtn.disabled = false;
   var chunks = [];
+  var bufferSize = 256;
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
-  var scriptNode = audioContext.createScriptProcessor(256, 2, 2);
+  var scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
+
 
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
-    // chunks.push(e.inputBuffer.getChannelData(0));
-    // console.log(e.inputBuffer.getChannelData(1));
-    sendLive(e.inputBuffer.getChannelData(0));
+
+    // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+    // var audioBufferSourceNode = audioContext.createBufferSource();
+    // audioBufferSourceNode.connect(audioContext.destination);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
+    // audioBufferSourceNode.buffer = audioBuffer;
+    // audioBufferSourceNode.start();
+
+    var input1 = e.inputBuffer.getChannelData(0);
+    var input2 = e.inputBuffer.getChannelData(1);
+    var output1 = e.outputBuffer.getChannelData(0);
+    var output2 = e.outputBuffer.getChannelData(1);
+    for (var sample = 0; sample < e.inputBuffer.length; sample++) {
+      // make output equal to the same as the input
+      output1[sample] = input1[sample];
+      output2[sample] = input2[sample];
+    }
   }
 
   liveBtn.onclick = function() {
