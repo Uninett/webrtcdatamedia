@@ -24,7 +24,8 @@ var liveAudio = document.querySelector('#liveAudio');
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
-var bufferSize = document.querySelector('#bufferSizeSelector');
+var bufferSize = document.querySelector('#bufferSizeSelector').value;
+console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
 var peerCon;
 var dataChannel;
@@ -296,6 +297,10 @@ function onDataChannelCreated(channel) {
   // receiveDataFirefoxFactory() : receiveDataChromeFactory();
 
   channel.onmessage = receiveDataChromeFactory();
+
+  channel.onclose = function() {
+    console.log('Closed');
+  }
 }
 
 function receiveDataChromeFactory() {
@@ -482,4 +487,9 @@ function receiveAudio(audioblob) {
 
 function logError(err) {
   console.log(err.toString(), err);
+}
+
+function changeBuffer(){
+  bufferSize = document.querySelector('#bufferSizeSelector').value;
+  console.log(bufferSize);
 }
