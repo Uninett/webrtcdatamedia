@@ -23,8 +23,11 @@ var liveAudio = document.querySelector('#liveAudio');
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
+var bufferSize = 1024;
 var peerCon;
 var dataChannel;
+var output1 = new Float32Array(bufferSize);
+var output2 = new Float32Array(bufferSize);
 
 // isInitiator is the one who's creating the room
 var isInitiator;
@@ -114,7 +117,6 @@ function gotStream(stream) {
   // Live audio starts
   liveBtn.disabled = false;
   var chunks = [];
-  var bufferSize = 256;
   var audioContext = new AudioContext();
   var audioContextSource = audioContext.createMediaStreamSource(localStream);
   var scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
@@ -138,12 +140,13 @@ function gotStream(stream) {
     // Using ScriptNodeProcessor to start audio
     */
     var input = e.inputBuffer.getChannelData(0);
-    var output1 = e.outputBuffer.getChannelData(0);
-    var output2 = e.outputBuffer.getChannelData(1);
-    for (var sample = 0; sample < e.inputBuffer.length; sample++) {
+    dataChannel.send(input);
+    var outputBuffer1 = e.outputBuffer.getChannelData(0);
+    var outputBuffer2 = e.outputBuffer.getChannelData(1);
+    for (var sample = 0; sample < bufferSize; sample++) {
       // make output equal to the same as the input
-      output1[sample] = input[sample];
-      output2[sample] = input[sample];
+      outputBuffer1[sample] = output1[sample];
+      outputBuffer2[sample] = output2[sample];
     }
   }
 
@@ -280,7 +283,7 @@ function onDataChannelCreated(channel) {
 }
 
 function receiveDataChromeFactory() {
-  var buf, count;
+  // var buf, count;
 
   return function onmessage(event) {
     // if (typeof event.data === 'string') {
@@ -291,10 +294,14 @@ function receiveDataChromeFactory() {
     //   return;
     // }
     // console.log(event.data);
-    var data = new Uint8ClampedArray(event.data);
-    console.log(data);
-    var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    receiveAudio(blob);
+
+    /*
+    // Sends audio clip
+    */
+    // var data = new Uint8ClampedArray(event.data);
+    // var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
+    // receiveAudio(blob);
+
     // buf.set(data, count);
     //
     // count += data.byteLength;
@@ -305,6 +312,12 @@ function receiveDataChromeFactory() {
     //   console.log('Done.');
     //   //TODO: Receive Audio
     // }
+    var remoteAudioBuffer = new Float32Array(event.data);
+    for (var sample = 0; sample < bufferSize; sample++) {
+      // make output equal to the same as the input
+      output1[sample] = remoteAudioBuffer[sample];
+      output2[sample] = remoteAudioBuffer[sample];
+    }
   }
 }
 
