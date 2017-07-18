@@ -11,17 +11,26 @@ var localStream;
 // HTML elements //
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
+var liveBtn = document.querySelector('#liveBtn');
+var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
+var liveAudio = document.querySelector('#liveAudio');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
+var bufferSize = 1024;
+var txrxBufferSize = bufferSize*10;
 var peerCon;
 var dataChannel;
+var output1 = new Float32Array(txrxBufferSize);
+var output2 = new Float32Array(txrxBufferSize);
+var outputFront = txrxBufferSize;
+var outputEnd = 0;
 
 // isInitiator is the one who's creating the room
 var isInitiator;
@@ -108,8 +117,68 @@ function gotStream(stream) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
 
-  // MediaRecorder
-  var mediaRecorder = new MediaRecorder(localStream);
+  // Live audio starts
+  liveBtn.disabled = false;
+  var chunks = [];
+  var audioContext = new AudioContext();
+  var audioContextSource = audioContext.createMediaStreamSource(localStream);
+  var scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
+
+
+  // Listens to the audiodata
+  scriptNode.onaudioprocess = function(e) {
+
+    /*
+    // Using audioBufferSourceNode to start Audio
+    */
+    // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+    // var audioBufferSourceNode = audioContext.createBufferSource();
+    // audioBufferSourceNode.connect(audioContext.destination);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
+    // audioBufferSourceNode.buffer = audioBuffer;
+    // audioBufferSourceNode.start();
+
+    /*
+    // Using ScriptNodeProcessor to start audio
+    */
+    var input = e.inputBuffer.getChannelData(0);
+    dataChannel.send(input);
+
+    if(outputFront == outputEnd){
+      console.log(outputEnd);
+      console.log(outputFront);
+    }
+    else {
+      var outputBuffer1 = e.outputBuffer.getChannelData(0);
+      var outputBuffer2 = e.outputBuffer.getChannelData(1);
+      for (var sample = 0; sample < bufferSize; sample++) {
+        // make output equal to the same as the input
+        outputBuffer1[sample] = output1[outputEnd]
+        outputBuffer2[sample] = output2[outputEnd];
+        outputEnd = (outputEnd+1)%(txrxBufferSize);
+      }
+    }
+  }
+
+  liveBtn.onclick = function() {
+    liveBtn.disabled = true;
+    stopLiveBtn.disabled = false;
+    audioContextSource.connect(scriptNode);
+    scriptNode.connect(audioContext.destination);
+  }
+
+  stopLiveBtn.onclick = function() {
+    audioContextSource.disconnect(scriptNode);
+    scriptNode.disconnect(audioContext.destination);
+    liveBtn.disabled = false;
+    stopLiveBtn.disabled = true;
+  }
+
+  // Live audio ends
+
+  // MediaRecorder starts
+  var mediaRecorder = new MediaRecorder(localStream,  {mimeType : 'audio/webm; codecs=opus'});
   var chunks = [];
   recordBtn.disabled = false;
 
@@ -131,12 +200,12 @@ function gotStream(stream) {
     console.log("data available after MediaRecorder.stop() called.");
     var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
     saveAudioClip(blob);
-    console.log(blob);
     chunks = [];
   }
 
   mediaRecorder.ondataavailable = function(e) {
     chunks.push(e.data);
+    console.log(e.data);
   }
   // MediaRecorder ends
 }
@@ -225,7 +294,7 @@ function onDataChannelCreated(channel) {
 }
 
 function receiveDataChromeFactory() {
-  var buf, count;
+  // var buf, count;
 
   return function onmessage(event) {
     // if (typeof event.data === 'string') {
@@ -235,10 +304,15 @@ function receiveDataChromeFactory() {
     //   console.log(event.data);
     //   return;
     // }
-    var data = new Uint8ClampedArray(event.data);
-    var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    // console.log(blob);
-    receiveAudio(blob);
+    // console.log(event.data);
+
+    /*
+    // Sends audio clip
+    */
+    // var data = new Uint8ClampedArray(event.data);
+    // var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
+    // receiveAudio(blob);
+
     // buf.set(data, count);
     //
     // count += data.byteLength;
@@ -249,6 +323,13 @@ function receiveDataChromeFactory() {
     //   console.log('Done.');
     //   //TODO: Receive Audio
     // }
+    var remoteAudioBuffer = new Float32Array(event.data);
+    for (var sample = 0; sample < bufferSize; sample++) {
+      // make output equal to the same as the input
+      output1[outputFront] = remoteAudioBuffer[sample];
+      output2[outputFront] = remoteAudioBuffer[sample];
+      outputFront = (outputFront+1)%(txrxBufferSize);
+    }
   }
 }
 
@@ -312,6 +393,10 @@ function sendData(blob) {
   }
 
   fileReader.readAsArrayBuffer(blob);
+}
+
+function sendLive(arrayBuffer) {
+  dataChannel.send(arrayBuffer);
 }
 
 function saveAudioClip(audioblob) {
