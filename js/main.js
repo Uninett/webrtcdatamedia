@@ -17,13 +17,14 @@ var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
+var notifications = document.querySelector('#notifications');
 var liveAudio = document.querySelector('#liveAudio');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
-var bufferSize = 256;
+var bufferSize = document.querySelector('#bufferSizeSelector');
 var txrxBufferSize = bufferSize*10;
 var peerCon;
 var dataChannel;
@@ -284,6 +285,10 @@ function onDataChannelCreated(channel) {
 
   channel.onopen = function() {
     console.log('CHANNEL opened!');
+    var dataChannelNotification = document.createElement('p');
+    dataChannelNotification.textContent = 'Data channel connection established!';
+    dataChannelNotification.style.color = 'green';
+    notifications.appendChild(dataChannelNotification);
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel

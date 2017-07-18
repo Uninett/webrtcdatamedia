@@ -2,10 +2,14 @@ html{
   margin: 0 auto;
 }
 
-body{
-
+#selectors{
+  margin-top: 10px;
 }
 
+
+/*
+// Generated clip styling
+*/
 #container{
   text-align: center;
 }

@@ -10,16 +10,27 @@
   <div id="container">
     <h1> Send audio clips using the data channel </h1>
 
-    <!-- <div id="audio">
-      <audio id="localAudio" controls autoplay></audio>
-      <audio id="remoteAudio" controls autoplay></audio>
-    </div> -->
+    <div id="notifications">
+
+    </div>
 
     <div id="buttons">
       <button id="liveBtn" disabled> Send live audio </button>
       <button id="stopLiveBtn" disabled> Stop live audio </button>
       <button id="recordBtn" disabled> Record </button>
       <button id="stopBtn" disabled> Stop </button>
+    </div>
+
+    <div id="selectors">
+      <select id="bufferSizeSelector">
+        <option value="256"> 256 </option>
+        <option value="512"> 512 </option>
+        <option value="1024"> 1024 </option>
+        <option value="2048"> 2048 </option>
+        <option value="4096"> 4096 </option>
+        <option value="8192"> 8192 </option>
+        <option value="16384"> 16384 </option>
+      </select>
     </div>
 
     <section class="local-clips">
