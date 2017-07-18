@@ -24,10 +24,13 @@ var liveAudio = document.querySelector('#liveAudio');
 
 // Peerconnection and data channel variables
 var bufferSize = 1024;
+var txrxBufferSize = bufferSize*10;
 var peerCon;
 var dataChannel;
-var output1 = new Float32Array(bufferSize);
-var output2 = new Float32Array(bufferSize);
+var output1 = new Float32Array(txrxBufferSize);
+var output2 = new Float32Array(txrxBufferSize);
+var outputFront = txrxBufferSize;
+var outputEnd = 0;
 
 // isInitiator is the one who's creating the room
 var isInitiator;
@@ -141,12 +144,20 @@ function gotStream(stream) {
     */
     var input = e.inputBuffer.getChannelData(0);
     dataChannel.send(input);
-    var outputBuffer1 = e.outputBuffer.getChannelData(0);
-    var outputBuffer2 = e.outputBuffer.getChannelData(1);
-    for (var sample = 0; sample < bufferSize; sample++) {
-      // make output equal to the same as the input
-      outputBuffer1[sample] = output1[sample];
-      outputBuffer2[sample] = output2[sample];
+
+    if(outputFront == outputEnd){
+      console.log(outputEnd);
+      console.log(outputFront);
+    }
+    else {
+      var outputBuffer1 = e.outputBuffer.getChannelData(0);
+      var outputBuffer2 = e.outputBuffer.getChannelData(1);
+      for (var sample = 0; sample < bufferSize; sample++) {
+        // make output equal to the same as the input
+        outputBuffer1[sample] = output1[outputEnd]
+        outputBuffer2[sample] = output2[outputEnd];
+        outputEnd = (outputEnd+1)%(txrxBufferSize);
+      }
     }
   }
 
@@ -315,8 +326,9 @@ function receiveDataChromeFactory() {
     var remoteAudioBuffer = new Float32Array(event.data);
     for (var sample = 0; sample < bufferSize; sample++) {
       // make output equal to the same as the input
-      output1[sample] = remoteAudioBuffer[sample];
-      output2[sample] = remoteAudioBuffer[sample];
+      output1[outputFront] = remoteAudioBuffer[sample];
+      output2[outputFront] = remoteAudioBuffer[sample];
+      outputFront = (outputFront+1)%(txrxBufferSize);
     }
   }
 }
