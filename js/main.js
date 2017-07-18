@@ -23,7 +23,7 @@ var liveAudio = document.querySelector('#liveAudio');
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
-var bufferSize = 1024;
+var bufferSize = 256;
 var txrxBufferSize = bufferSize*10;
 var peerCon;
 var dataChannel;
