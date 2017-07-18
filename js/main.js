@@ -123,6 +123,9 @@ function gotStream(stream) {
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
 
+    /*
+    // Using audioBufferSourceNode to start Audio
+    */
     // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
     // var audioBufferSourceNode = audioContext.createBufferSource();
     // audioBufferSourceNode.connect(audioContext.destination);
@@ -131,14 +134,16 @@ function gotStream(stream) {
     // audioBufferSourceNode.buffer = audioBuffer;
     // audioBufferSourceNode.start();
 
-    var input1 = e.inputBuffer.getChannelData(0);
-    var input2 = e.inputBuffer.getChannelData(1);
+    /*
+    // Using ScriptNodeProcessor to start audio
+    */
+    var input = e.inputBuffer.getChannelData(0);
     var output1 = e.outputBuffer.getChannelData(0);
     var output2 = e.outputBuffer.getChannelData(1);
     for (var sample = 0; sample < e.inputBuffer.length; sample++) {
       // make output equal to the same as the input
-      output1[sample] = input1[sample];
-      output2[sample] = input2[sample];
+      output1[sample] = input[sample];
+      output2[sample] = input[sample];
     }
   }
 
