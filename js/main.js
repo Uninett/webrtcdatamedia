@@ -234,10 +234,10 @@ function signalingMessageCallback(message) {
 
   } else if (message === 'bye') {
     // BAI
-    console.log('Datachannel closed');
     dataChannel.close();
     dataChannelNotification.textContent = 'Data channel connection closed!';
     dataChannelNotification.style.color = 'red';
+    isInitiator = true;
   }
 }
 
