@@ -25,7 +25,7 @@ var dataChannelNotification = document.createElement('p');
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
-var bufferSize = document.querySelector('#bufferSizeSelector').value;
+var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
 var peerCon;
@@ -147,6 +147,7 @@ function gotStream(stream) {
     */
     var input = e.inputBuffer.getChannelData(0);
     dataChannel.send(input);
+    console.log(input);
 
     if(outputFront == outputEnd){
       console.log(outputEnd);
@@ -167,6 +168,7 @@ function gotStream(stream) {
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
     stopLiveBtn.disabled = false;
+    document.getElementById('bufferSizeSelector').disabled = true;
     audioContextSource.connect(scriptNode);
     scriptNode.connect(audioContext.destination);
   }
@@ -176,6 +178,7 @@ function gotStream(stream) {
     scriptNode.disconnect(audioContext.destination);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
+    document.getElementById('bufferSizeSelector').disabled = false;
   }
 
   // Live audio ends
@@ -311,32 +314,10 @@ function receiveDataChromeFactory() {
   // var buf, count;
 
   return function onmessage(event) {
-    // if (typeof event.data === 'string') {
-    //   buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
-    //   count = 0;
-    //   console.log('Expecting a total of ' + buf.byteLength + ' bytes');
-    //   console.log(event.data);
-    //   return;
-    // }
-    // console.log(event.data);
-
     /*
-    // Sends audio clip
+    // Sends live audio stream throigh data channel
     */
-    // var data = new Uint8ClampedArray(event.data);
-    // var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    // receiveAudio(blob);
 
-    // buf.set(data, count);
-    //
-    // count += data.byteLength;
-    // console.log('count: ' + count);
-    //
-    // if (count === buf.byteLength) {
-    //   // Wer're done: all data chunks have been received
-    //   console.log('Done.');
-    //   //TODO: Receive Audio
-    // }
     var remoteAudioBuffer = new Float32Array(event.data);
     for (var sample = 0; sample < bufferSize; sample++) {
       // make output equal to the same as the input
@@ -344,6 +325,17 @@ function receiveDataChromeFactory() {
       output2[outputFront] = remoteAudioBuffer[sample];
       outputFront = (outputFront+1)%(txrxBufferSize);
     }
+
+
+    /*
+    // Sends audio clip
+    */
+    // else if(typeof event.data === 'ArrayBuffer'){
+    //  var data = new Uint8ClampedArray(event.data);
+    //  var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
+    //  receiveAudio(blob);
+    // }
+
   }
 }
 
@@ -407,10 +399,6 @@ function sendData(blob) {
   }
 
   fileReader.readAsArrayBuffer(blob);
-}
-
-function sendLive(arrayBuffer) {
-  dataChannel.send(arrayBuffer);
 }
 
 function saveAudioClip(audioblob) {
@@ -500,6 +488,7 @@ function logError(err) {
 }
 
 function changeBuffer(){
-  bufferSize = document.querySelector('#bufferSizeSelector').value;
+  bufferSize = document.getElementById('bufferSizeSelector').value;
+  txrxBufferSize = bufferSize*10;
   console.log(bufferSize);
 }
