@@ -19,6 +19,7 @@ var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
 var liveAudio = document.querySelector('#liveAudio');
+var dataChannelNotification = document.createElement('p');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
@@ -233,6 +234,10 @@ function signalingMessageCallback(message) {
 
   } else if (message === 'bye') {
     // BAI
+    console.log('Datachannel closed');
+    dataChannel.close();
+    dataChannelNotification.textContent = 'Data channel connection closed!';
+    dataChannelNotification.style.color = 'red';
   }
 }
 
@@ -286,7 +291,6 @@ function onDataChannelCreated(channel) {
 
   channel.onopen = function() {
     console.log('CHANNEL opened!');
-    var dataChannelNotification = document.createElement('p');
     dataChannelNotification.textContent = 'Data channel connection established!';
     dataChannelNotification.style.color = 'green';
     notifications.appendChild(dataChannelNotification);
@@ -484,6 +488,12 @@ function receiveAudio(audioblob) {
 // function randomToken() {
 //   return Math.floor((1 + Math.random()) * 1e16).toString(16).substring(1);
 // }
+
+//Runs the code when the Peer exits the page
+window.onbeforeunload = function() {
+  sendMessage('bye');
+  dataChannel.close();
+}
 
 function logError(err) {
   console.log(err.toString(), err);
