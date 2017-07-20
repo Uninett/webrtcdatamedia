@@ -1,4 +1,4 @@
-# PeerAudio - WebRTC datachannel audio #
+# PeerAudio - WebRTC data channel audio #
 
 This WebRTC system attempts to apply the WebRTC datachannel to transmit uncompressed audio between peer-browsers.
 
