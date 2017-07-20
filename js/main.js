@@ -25,11 +25,13 @@ var dataChannelNotification = document.createElement('p');
 // sendBtn.addEventListener('click', sendData);
 
 // Peerconnection and data channel variables
+var liveDataChannel;
+var clipDataChannel;
+
 var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
 var peerCon;
-var dataChannel;
 var output1 = new Float32Array(txrxBufferSize);
 var output2 = new Float32Array(txrxBufferSize);
 var outputFront = txrxBufferSize;
@@ -146,12 +148,10 @@ function gotStream(stream) {
     // Using ScriptNodeProcessor to start audio
     */
     var input = e.inputBuffer.getChannelData(0);
-    dataChannel.send(input);
-    console.log(input);
+    liveDataChannel.send(input);
 
     if(outputFront == outputEnd){
       console.log(outputEnd);
-      console.log(outputFront);
     }
     else {
       var outputBuffer1 = e.outputBuffer.getChannelData(0);
@@ -237,7 +237,8 @@ function signalingMessageCallback(message) {
 
   } else if (message === 'bye') {
     // BAI
-    dataChannel.close();
+    liveDataChannel.close();
+    clipDataChannel.close();
     dataChannelNotification.textContent = 'Data channel connection closed!';
     dataChannelNotification.style.color = 'red';
     isInitiator = true;
@@ -266,8 +267,10 @@ function createPeerConnection(isInitiator, config) {
 
   if(isInitiator) {
     console.log('Creating Data Channel');
-    dataChannel = peerCon.createDataChannel('');
-    onDataChannelCreated(dataChannel);
+    liveDataChannel = peerCon.createDataChannel('live');
+    clipDataChannel = peerCon.createDataChannel('clip');
+    onDataChannelCreated(liveDataChannel);
+    onDataChannelCreated(clipDataChannel);
 
     console.log('Creating an offer');
     peerCon.createOffer(onLocalSessionCreated, logError);
@@ -275,8 +278,13 @@ function createPeerConnection(isInitiator, config) {
   } else {
     peerCon.ondatachannel = function(event) {
       console.log('ondatachannel:', event.channel);
-      dataChannel = event.channel;
-      onDataChannelCreated(dataChannel);
+      if(event.channel.label == 'live'){
+        liveDataChannel = event.channel;
+        onDataChannelCreated(liveDataChannel);
+      } else {
+        clipDataChannel = event.channel;
+        onDataChannelCreated(clipDataChannel);
+      }
     };
   }
 }
@@ -300,24 +308,22 @@ function onDataChannelCreated(channel) {
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
-  // channel.onmessage = (adapter.browserDetails.browser === 'firefox') ?
-  // receiveDataFirefoxFactory() : receiveDataChromeFactory();
-
-  channel.onmessage = receiveDataChromeFactory();
+  if(channel.label == 'live') {
+    channel.onmessage = receiveLiveData();
+  } else {
+    channel.onmessage = receiveClipData();
+  }
 
   channel.onclose = function() {
     console.log('Closed');
   }
 }
 
-function receiveDataChromeFactory() {
-  // var buf, count;
-
+/*
+// Sends live audio stream throigh data channel
+*/
+function receiveLiveData() {
   return function onmessage(event) {
-    /*
-    // Sends live audio stream throigh data channel
-    */
-
     var remoteAudioBuffer = new Float32Array(event.data);
     for (var sample = 0; sample < bufferSize; sample++) {
       // make output equal to the same as the input
@@ -325,56 +331,18 @@ function receiveDataChromeFactory() {
       output2[outputFront] = remoteAudioBuffer[sample];
       outputFront = (outputFront+1)%(txrxBufferSize);
     }
-
-
-    /*
-    // Sends audio clip
-    */
-    // else if(typeof event.data === 'ArrayBuffer'){
-    //  var data = new Uint8ClampedArray(event.data);
-    //  var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
-    //  receiveAudio(blob);
-    // }
-
   }
 }
 
-function receiveDataFirefoxFactory() {
-  var count, total, parts;
-
-  return function onmessage(event) {
-    if (typeof event.data === 'string') {
-      total = parseInt(event.data);
-      parts = [];
-      count = 0;
-      console.log('Expecting a total of ' + total + ' bytes');
-      return;
-    }
-
-    parts.push(event.data);
-    count += event.data.size;
-    console.log('Got ' + event.data.size + ' byte(s), ' + (total - count) +
-                ' to go.');
-
-    if (count === total) {
-      console.log('Assembling payload');
-      var buf = new Uint8ClampedArray(total);
-      var compose = function(i, pos) {
-        var reader = new FileReader();
-        reader.onload = function() {
-          buf.set(new Uint8ClampedArray(this.result), pos);
-          if (i + 1 === parts.length) {
-            console.log('Done.');
-            //TODO: Receive Audio
-          } else {
-            compose(i + 1, pos + this.result.byteLength);
-          }
-        };
-        reader.readAsArrayBuffer(parts[i]);
-      };
-      compose(0, 0);
-    }
-  };
+/*
+// Sends audio clip
+*/
+function receiveClipData() {
+  return function onmessage(event){
+    var data = new Uint8ClampedArray(event.data);
+    var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
+    receiveAudio(blob);
+  }
 }
 
 /****************************************************************************
@@ -384,18 +352,13 @@ function receiveDataFirefoxFactory() {
 // dataChannel.send(data), data gets received by using event.data
 // Sending a blob through RTCPeerConnection is not supported. Must use an ArrayBuffer?
 function sendData(blob) {
-  // Split data channel message in chunks of this byte length.
-  // var CHUNK_LEN = 64000;
-  // var len = blob.size,
-  // n = len / CHUNK_LEN | 0;
-
   var fileReader = new FileReader();
   var arrayBuffer;
 
   fileReader.onloadend = () => {
     arrayBuffer = fileReader.result;
     console.log(arrayBuffer);
-    dataChannel.send(arrayBuffer);
+    clipDataChannel.send(arrayBuffer);
   }
 
   fileReader.readAsArrayBuffer(blob);
@@ -480,7 +443,8 @@ function receiveAudio(audioblob) {
 //Runs the code when the Peer exits the page
 window.onbeforeunload = function() {
   sendMessage('bye');
-  dataChannel.close();
+  liveDataChannel.close();
+  clipDataChannel.close();
 }
 
 function logError(err) {
