@@ -8,6 +8,8 @@ var path = require('path');
 var fs = require('fs');
 var connections = [];
 
+var credentials = fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8');
+
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
 
@@ -24,7 +26,6 @@ io.sockets.on('connection', function(socket) {
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
 
-  var credentials = JSON.parse(fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8'));
   socket.emit('credentials', credentials);
 
   // Convenience function to log server messages on the client (client listens to it on socket.on('log'))
