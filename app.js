@@ -8,7 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var connections = [];
 
-var credentials = fs.readFileSync('/etc/audiopeerturn/config.txt', 'utf8');
+var credentials = fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8');
 
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
