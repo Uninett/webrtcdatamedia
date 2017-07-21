@@ -70,7 +70,6 @@ if (room !== '') {
 socket.on('credentials', function(credentials) {
   configuration = credentials;
   console.log(configuration);
-  console.log('helo');
 })
 
 socket.on('created', function(room, clientId) {
