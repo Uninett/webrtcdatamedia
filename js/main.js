@@ -68,7 +68,7 @@ if (room !== '') {
 }
 
 socket.on('credentials', function(credentials) {
-  configuration = JSON.parse(credentials);
+  configuration = JSON.parse(JSON.parse(credentials));
   console.log(configuration);
 })
 
