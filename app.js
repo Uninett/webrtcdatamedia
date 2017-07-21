@@ -26,9 +26,7 @@ io.sockets.on('connection', function(socket) {
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
 
-  socket.emit('credentials', function(credentials) {
-    log('Received credentials for the server');
-  })
+  socket.emit('credentials', credentials);
 
   // Convenience function to log server messages on the client (client listens to it on socket.on('log'))
   function log() {
