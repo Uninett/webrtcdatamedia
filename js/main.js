@@ -1,11 +1,11 @@
 'use strict';
 
-var configuration = {
-  'iceServers': [{
-    'urls': 'stun:stun.l.google.com:19302'
-  }]
-};
-// var configuration = null;
+// var configuration = {
+//   'iceServers': [{
+//     'urls': 'stun:stun.l.google.com:19302'
+//   }]
+// };
+var configuration = null;
 var localStream;
 
 // HTML elements //
@@ -69,7 +69,6 @@ if (room !== '') {
 
 socket.on('credentials', function(credentials) {
   configuration = credentials;
-  // console.log(JSON.parse(credentials));
   console.log(configuration);
 })
 
