@@ -5,10 +5,14 @@ var app = express();
 var server = require('http').createServer(app).listen(8080);
 var io = require('socket.io').listen(server);
 var path = require('path');
-var fs = require('fs');
 var connections = [];
 
-var credentials = fs.readFile('/etc/audiopeerturn/credentials.json', 'utf8');
+var credentials = {
+  'iceServers': [{
+    'urls': 'stun:stun.l.google.com:19302'
+  }]
+};
+
 
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
@@ -26,16 +30,14 @@ io.sockets.on('connection', function(socket) {
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
 
-  socket.emit('credentials', function(credentials) {
-    log('Received credentials for the server');
-  })
-
   // Convenience function to log server messages on the client (client listens to it on socket.on('log'))
   function log() {
     var array = ['Message from server: '];
     array.push.apply(array, arguments);
     socket.emit('log', array);
   }
+
+  socket.emit('credentials', credentials);
 
   socket.on('message', function(message, room) {
     log('Client said: ', message);

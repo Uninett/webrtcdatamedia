@@ -1,10 +1,10 @@
 'use strict';
+
 var configuration = {
   'iceServers': [{
     'urls': 'stun:stun.l.google.com:19302'
   }]
 };
-
 // var configuration = null;
 var localStream;
 
@@ -37,6 +37,11 @@ var output2 = new Float32Array(txrxBufferSize);
 var outputFront = txrxBufferSize;
 var outputEnd = 0;
 
+// Audio context variables
+var audioContext;
+var audioContextSource;
+var scriptNode;
+
 // isInitiator is the one who's creating the room
 var isInitiator;
 
@@ -61,6 +66,11 @@ if (room !== '') {
   socket.emit('create or join', room);
   console.log('Attempted to create or  join room', room);
 }
+
+socket.on('credentials', function(credentials) {
+  // configuration = credentials;
+  console.log(credentials);
+})
 
 socket.on('created', function(room, clientId) {
   console.log('Created room ' + room);
@@ -124,15 +134,13 @@ function gotStream(stream) {
 
   // Live audio starts
   liveBtn.disabled = false;
-  var chunks = [];
-  var audioContext = new AudioContext();
-  var audioContextSource = audioContext.createMediaStreamSource(localStream);
-  var scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
-
+  audioContext = new AudioContext();
+  audioContextSource = audioContext.createMediaStreamSource(localStream);
+  scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
 
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
-
+    console.log(scriptNode.bufferSize);
     /*
     // Using audioBufferSourceNode to start Audio
     */
@@ -151,7 +159,7 @@ function gotStream(stream) {
     liveDataChannel.send(input);
 
     if(outputFront == outputEnd){
-      console.log(outputEnd);
+      // console.log(outputEnd);
     }
     else {
       var outputBuffer1 = e.outputBuffer.getChannelData(0);
@@ -180,7 +188,6 @@ function gotStream(stream) {
     stopLiveBtn.disabled = true;
     document.getElementById('bufferSizeSelector').disabled = false;
   }
-
   // Live audio ends
 
   // MediaRecorder starts
@@ -452,6 +459,7 @@ function logError(err) {
 }
 
 function changeBuffer(){
+  scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
   bufferSize = document.getElementById('bufferSizeSelector').value;
   txrxBufferSize = bufferSize*10;
   console.log(bufferSize);
