@@ -185,7 +185,7 @@ function gotStream(stream) {
     scriptNode.disconnect(audioContext.destination);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
-    document.getElementById('bufferSizeSelector').disabled = false;
+    // document.getElementById('bufferSizeSelector').disabled = false;
   }
   // Live audio ends
 
