@@ -67,6 +67,7 @@ var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
 var liveAudio = document.querySelector('#liveAudio');
 var dataChannelNotification = document.createElement('p');
+var liveAudioNotification = document.createElement('p');
 
 // Event handlers on the buttons
 // sendBtn.addEventListener('click', sendData);
@@ -83,7 +84,6 @@ var peerCon;
 // var output2 = new Float32Array(txrxBufferSize);
 // var outputFront = txrxBufferSize;
 // var outputEnd = 0;
-
 var output1 = new AudioSampleQueue(txrxBufferSize);
 var output2 = new AudioSampleQueue(txrxBufferSize);
 
@@ -192,6 +192,7 @@ function gotStream(stream) {
     startBuffer();
     audioContextSource.connect(scriptNode);
     scriptNode.connect(audioContext.destination);
+    sendMessage('startLive');
   }
 
   stopLiveBtn.onclick = function() {
@@ -199,6 +200,8 @@ function gotStream(stream) {
     scriptNode.disconnect(audioContext.destination);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
+    sendMessage('stopLive');
+    audioContext.close();
     document.getElementById('bufferSizeSelector').disabled = false;
   }
   // Live audio ends
@@ -262,7 +265,17 @@ function signalingMessageCallback(message) {
     dataChannelNotification.textContent = 'Data channel connection closed!';
     dataChannelNotification.style.color = 'red';
     isInitiator = true;
+
+  } else if (message === 'startLive') {
+    liveAudioNotification.textContent = 'The other peer started to stream live audio';
+    liveAudioNotification.style.color = 'green';
+    notifications.appendChild(liveAudioNotification);
+
+  } else if (message === 'stopLive') {
+    liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
+    liveAudioNotification.style.color = 'red';
   }
+
 }
 
 function createPeerConnection(isInitiator, config) {
@@ -500,6 +513,7 @@ function startBuffer() {
     // if(outputFront == outputEnd){
       // console.log(outputEnd);
     if(output1.length() == 0){
+
     }
     else {
       var outputBuffer1 = e.outputBuffer.getChannelData(0);
@@ -517,7 +531,6 @@ function startBuffer() {
 }
 
 function changeBuffer() {
-  scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
   bufferSize = document.getElementById('bufferSizeSelector').value;
   txrxBufferSize = bufferSize*10;
   // output1 = new Float32Array(txrxBufferSize);
