@@ -275,7 +275,7 @@ function signalingMessageCallback(message) {
     liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
     liveAudioNotification.style.color = 'red';
 
-    if (!audioContext.state == 'closed') {
+    if (audioContext.state === 'running') {
       audioContextSource.disconnect(scriptNode);
       scriptNode.disconnect(audioContext.destination);
       liveBtn.disabled = false;
