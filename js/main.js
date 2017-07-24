@@ -522,21 +522,21 @@ function startBuffer() {
 
     // if(outputFront == outputEnd){
       // console.log(outputEnd);
-    // if(output1.length() == 0){
-    //
-    // }
-    // else {
-    //   var outputBuffer1 = e.outputBuffer.getChannelData(0);
-    //   var outputBuffer2 = e.outputBuffer.getChannelData(1);
-    //   for (var sample = 0; sample < bufferSize; sample++) {
-    //     // make output equal to the same as the input
-    //     // outputBuffer1[sample] = output1[outputEnd];
-    //     // outputBuffer2[sample] = output2[outputEnd];
-    //     // outputEnd = (outputEnd+1)%(txrxBufferSize);
-    //     outputBuffer1[sample] = output1.dequeue();
-    //     outputBuffer2[sample] = output2.dequeue();
-    //   }
-    // }
+    if(output1.length() == 0){
+
+    }
+    else {
+      var outputBuffer1 = e.outputBuffer.getChannelData(0);
+      var outputBuffer2 = e.outputBuffer.getChannelData(1);
+      for (var sample = 0; sample < bufferSize; sample++) {
+        // make output equal to the same as the input
+        // outputBuffer1[sample] = output1[outputEnd];
+        // outputBuffer2[sample] = output2[outputEnd];
+        // outputEnd = (outputEnd+1)%(txrxBufferSize);
+        outputBuffer1[sample] = output1.dequeue();
+        outputBuffer2[sample] = output2.dequeue();
+      }
+    }
   }
 }
 
