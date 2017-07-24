@@ -275,13 +275,15 @@ function signalingMessageCallback(message) {
     liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
     liveAudioNotification.style.color = 'red';
 
-    audioContextSource.disconnect(scriptNode);
-    scriptNode.disconnect(audioContext.destination);
-    liveBtn.disabled = false;
-    stopLiveBtn.disabled = true;
-    sendMessage('stopLive');
-    audioContext.close();
-    document.getElementById('bufferSizeSelector').disabled = false;
+    if (!audioContext.state == 'closed') {
+      audioContextSource.disconnect(scriptNode);
+      scriptNode.disconnect(audioContext.destination);
+      liveBtn.disabled = false;
+      stopLiveBtn.disabled = true;
+      sendMessage('stopLive');
+      audioContext.close();
+      document.getElementById('bufferSizeSelector').disabled = false;
+    }
   }
 
 }
