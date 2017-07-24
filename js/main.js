@@ -528,7 +528,7 @@ function startBuffer() {
     else {
       var outputBuffer1 = e.outputBuffer.getChannelData(0);
       var outputBuffer2 = e.outputBuffer.getChannelData(1);
-      for (var sample = 0; sample < bufferSize; sample++) {
+      for (var sample = 0; sample < output1.length(); sample++) {
         // make output equal to the same as the input
         // outputBuffer1[sample] = output1[outputEnd];
         // outputBuffer2[sample] = output2[outputEnd];
