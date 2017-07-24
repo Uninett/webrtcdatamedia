@@ -8,17 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var connections = [];
 
-// var credentials = JSON.stringify(fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8'));
-
-var credentials = {
-    'iceServers': [
-        {'username':'videoturn','credential':'videoturn','urls': 'turn:158.38.2.18:443?transport=tcp'},
-        {'urls': 'stun:stun.services.mozilla.com'},
-        {'urls': 'stun:stun.l.google.com:19302'},
-//        {'username':'websip','credential':'websip','urls': 'turn:158.38.212.210:443?transport=tcp'},
-//        {'username':'websip','credential':'websip','urls': 'turn:158.38.212.210:80?transport=udp'},
-//        {'username':'videoturn','credential':'videoturn','urls': 'turn:158.38.2.18:443?transport=udp'}
-]};
+var credentials = fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8');
 
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom
 var defaultNamespace = '/';
@@ -26,7 +16,7 @@ var defaultNamespace = '/';
 console.log('Server running at port ' + '8080');
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html')
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.use('/js', express.static(path.join(__dirname, '/js')));
