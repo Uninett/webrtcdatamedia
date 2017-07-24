@@ -1,5 +1,52 @@
 'use strict';
 
+//
+// Audio worker node forwarding audio data uncompressed onto a data channel
+//
+class AudioSampleQueue {
+    // Queue class for 32bit float audio samples
+    constructor(maxqueuelength = 1024) {
+    this.maxQueueLength = maxqueuelength;
+    this.queue = new Float32Array(this.maxQueueLength);
+    this.front = 0;
+    this.end = 0;
+    this.empty = true;
+    }
+
+    enqueue(sample) {
+    // Insert sample at end of queue
+    if (this.length() == this.maxQueueLength) {
+        // console.log("Queue is full.")
+    } else {
+        this.queue[this.end] = sample;
+        this.end = (this.end + 1) % this.maxQueueLength;
+        this.empty = false;
+    }
+    }
+
+    dequeue() {
+    // Remove and return sample from front of queue
+    if (this.length() > 0) {
+        var sample = this.queue[this.front];
+        this.front = (this.front + 1) % this.maxQueueLength;
+        this.empty = (this.front == this.end);
+        return sample;
+    }
+    // console.log("Queue is empty (" + this.front + ")");
+    return null;
+    }
+
+    length() {
+    // Return length of queue
+        if (this.empty) {
+        return 0;
+    }
+    var l = (this.end - this.front + this.maxQueueLength) % this.maxQueueLength;
+    return l == 0 ? this.maxQueueLength : l;
+    }
+}
+
+
 // var configuration = {
 //   'iceServers': [{
 //     'urls': 'stun:stun.l.google.com:19302'
@@ -32,10 +79,13 @@ var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
 var peerCon;
-var output1 = new Float32Array(txrxBufferSize);
-var output2 = new Float32Array(txrxBufferSize);
-var outputFront = txrxBufferSize;
-var outputEnd = 0;
+// var output1 = new Float32Array(txrxBufferSize);
+// var output2 = new Float32Array(txrxBufferSize);
+// var outputFront = txrxBufferSize;
+// var outputEnd = 0;
+
+var output1 = new AudioSampleQueue(txrxBufferSize);
+var output2 = new AudioSampleQueue(txrxBufferSize);
 
 // Audio context variables
 var audioContext;
@@ -68,7 +118,8 @@ if (room !== '') {
 }
 
 socket.on('credentials', function(credentials) {
-  configuration = JSON.parse(credentials);
+  // configuration = JSON.parse(credentials);
+  configuration = credentials;
 })
 
 socket.on('created', function(room, clientId) {
@@ -133,49 +184,12 @@ function gotStream(stream) {
 
   // Live audio starts
   liveBtn.disabled = false;
-  audioContext = new AudioContext();
-  audioContextSource = audioContext.createMediaStreamSource(localStream);
-  scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
-
-  // Listens to the audiodata
-  scriptNode.onaudioprocess = function(e) {
-    console.log(scriptNode.bufferSize);
-    /*
-    // Using audioBufferSourceNode to start Audio
-    */
-    // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
-    // var audioBufferSourceNode = audioContext.createBufferSource();
-    // audioBufferSourceNode.connect(audioContext.destination);
-    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
-    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
-    // audioBufferSourceNode.buffer = audioBuffer;
-    // audioBufferSourceNode.start();
-
-    /*
-    // Using ScriptNodeProcessor to start audio
-    */
-    var input = e.inputBuffer.getChannelData(0);
-    liveDataChannel.send(input);
-
-    if(outputFront == outputEnd){
-      // console.log(outputEnd);
-    }
-    else {
-      var outputBuffer1 = e.outputBuffer.getChannelData(0);
-      var outputBuffer2 = e.outputBuffer.getChannelData(1);
-      for (var sample = 0; sample < bufferSize; sample++) {
-        // make output equal to the same as the input
-        outputBuffer1[sample] = output1[outputEnd]
-        outputBuffer2[sample] = output2[outputEnd];
-        outputEnd = (outputEnd+1)%(txrxBufferSize);
-      }
-    }
-  }
 
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
     stopLiveBtn.disabled = false;
     document.getElementById('bufferSizeSelector').disabled = true;
+    startBuffer();
     audioContextSource.connect(scriptNode);
     scriptNode.connect(audioContext.destination);
   }
@@ -185,7 +199,7 @@ function gotStream(stream) {
     scriptNode.disconnect(audioContext.destination);
     liveBtn.disabled = false;
     stopLiveBtn.disabled = true;
-    // document.getElementById('bufferSizeSelector').disabled = false;
+    document.getElementById('bufferSizeSelector').disabled = false;
   }
   // Live audio ends
 
@@ -333,9 +347,11 @@ function receiveLiveData() {
     var remoteAudioBuffer = new Float32Array(event.data);
     for (var sample = 0; sample < bufferSize; sample++) {
       // make output equal to the same as the input
-      output1[outputFront] = remoteAudioBuffer[sample];
-      output2[outputFront] = remoteAudioBuffer[sample];
-      outputFront = (outputFront+1)%(txrxBufferSize);
+      // output1[outputFront] = remoteAudioBuffer[sample];
+      // output2[outputFront] = remoteAudioBuffer[sample];
+      // outputFront = (outputFront+1)%(txrxBufferSize);
+      output1.enqueue(remoteAudioBuffer[sample]);
+      output2.enqueue(remoteAudioBuffer[sample]);
     }
   }
 }
@@ -457,9 +473,58 @@ function logError(err) {
   console.log(err.toString(), err);
 }
 
-function changeBuffer(){
+function startBuffer() {
+  audioContext = new AudioContext();
+  audioContextSource = audioContext.createMediaStreamSource(localStream);
+  scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
+
+  // Listens to the audiodata
+  scriptNode.onaudioprocess = function(e) {
+    /*
+    // Using audioBufferSourceNode to start Audio
+    */
+    // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+    // var audioBufferSourceNode = audioContext.createBufferSource();
+    // audioBufferSourceNode.connect(audioContext.destination);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
+    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
+    // audioBufferSourceNode.buffer = audioBuffer;
+    // audioBufferSourceNode.start();
+
+    /*
+    // Using ScriptNodeProcessor to start audio
+    */
+    var input = e.inputBuffer.getChannelData(0);
+    liveDataChannel.send(input);
+
+    // if(outputFront == outputEnd){
+      // console.log(outputEnd);
+    if(output1.length() == 0){
+    }
+    else {
+      var outputBuffer1 = e.outputBuffer.getChannelData(0);
+      var outputBuffer2 = e.outputBuffer.getChannelData(1);
+      for (var sample = 0; sample < bufferSize; sample++) {
+        // make output equal to the same as the input
+        // outputBuffer1[sample] = output1[outputEnd];
+        // outputBuffer2[sample] = output2[outputEnd];
+        // outputEnd = (outputEnd+1)%(txrxBufferSize);
+        outputBuffer1[sample] = output1.dequeue();
+        outputBuffer2[sample] = output2.dequeue();
+      }
+    }
+  }
+}
+
+function changeBuffer() {
   scriptNode = audioContext.createScriptProcessor(bufferSize, 2, 2);
   bufferSize = document.getElementById('bufferSizeSelector').value;
   txrxBufferSize = bufferSize*10;
+  // output1 = new Float32Array(txrxBufferSize);
+  // output2 = new Float32Array(txrxBufferSize);
+  // outputFront = txrxBufferSize;
+  // outputEnd = 0;
+  output1 = new AudioSampleQueue(txrxBufferSize);
+  output2 = new AudioSampleQueue(txrxBufferSize);
   console.log(bufferSize);
 }
