@@ -274,6 +274,14 @@ function signalingMessageCallback(message) {
   } else if (message === 'stopLive') {
     liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
     liveAudioNotification.style.color = 'red';
+
+    audioContextSource.disconnect(scriptNode);
+    scriptNode.disconnect(audioContext.destination);
+    liveBtn.disabled = false;
+    stopLiveBtn.disabled = true;
+    sendMessage('stopLive');
+    audioContext.close();
+    document.getElementById('bufferSizeSelector').disabled = false;
   }
 
 }
