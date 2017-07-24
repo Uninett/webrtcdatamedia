@@ -118,8 +118,8 @@ if (room !== '') {
 }
 
 socket.on('credentials', function(credentials) {
-  // configuration = JSON.parse(credentials);
-  configuration = credentials;
+  configuration = JSON.parse(credentials);
+  // configuration = credentials;
 })
 
 socket.on('created', function(room, clientId) {
