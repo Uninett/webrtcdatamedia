@@ -118,7 +118,7 @@ if (room !== '') {
 }
 
 socket.on('credentials', function(credentials) {
-  configuration = JSON.parse(credentials);
+  configuration = credentials;
   // configuration = credentials;
 })
 
