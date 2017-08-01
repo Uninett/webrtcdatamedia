@@ -80,10 +80,6 @@ var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
 var peerCon;
-// var output1 = new Float32Array(txrxBufferSize);
-// var output2 = new Float32Array(txrxBufferSize);
-// var outputFront = txrxBufferSize;
-// var outputEnd = 0;
 var output1 = new AudioSampleQueue(txrxBufferSize);
 var output2 = new AudioSampleQueue(txrxBufferSize);
 
