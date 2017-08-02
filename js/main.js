@@ -58,6 +58,7 @@ var localStream;
 // HTML elements //
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
+var localVideo = document.getElementById('#localVideo');
 var liveBtn = document.querySelector('#liveBtn');
 var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
@@ -178,6 +179,10 @@ function gotStream(stream) {
   if(audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
+
+  // Live video starts
+  
+  // Live video code ends
 
   // Live audio starts
   liveBtn.disabled = false;
