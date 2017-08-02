@@ -58,7 +58,7 @@ var localStream;
 // HTML elements //
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
-var localVideo = document.getElementById('#localVideo');
+var localVideo = document.querySelector('#localVideo');
 var liveBtn = document.querySelector('#liveBtn');
 var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
@@ -176,12 +176,15 @@ function gotStream(stream) {
   console.log('Received local stream');
   localStream = stream;
   var audioTracks = localStream.getAudioTracks();
+  var videoTracks = localStream.getVideoTracks();
   if(audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
+    console.log('Using Video device: ' + videoTracks[0].label);
   }
 
   // Live video starts
-  
+  var streamURL = window.URL.createObjectURL(stream);
+  localVideo.src = streamURL;
   // Live video code ends
 
   // Live audio starts
