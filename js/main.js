@@ -121,14 +121,14 @@ socket.on('credentials', function(credentials) {
 socket.on('created', function(room, clientId) {
   console.log('Created room ' + room);
   isInitiator = true;
-  getAudio();
+  getMedia();
 });
 
 socket.on('joined', function(room, clientId) {
   console.log('joined ' + room);
   isInitiator = false;
   createPeerConnection(isInitiator, configuration);
-  getAudio();
+  getMedia();
 });
 
 socket.on('full', function(room, clientId) {
@@ -159,10 +159,11 @@ function sendMessage(message) {
 * User media (audio)
 ****************************************************************************/
 
-function getAudio(){
+function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
+    video: true
   })
   .then(gotStream)
   .catch(function(e) {
