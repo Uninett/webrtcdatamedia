@@ -70,8 +70,12 @@ var liveAudio = document.querySelector('#liveAudio');
 var dataChannelNotification = document.createElement('p');
 var liveAudioNotification = document.createElement('p');
 
-// Event handlers on the buttons
-// sendBtn.addEventListener('click', sendData);
+// Photo context variables for video grab data
+// remoteCanvas is a canvas with continously an updated photo-context to make a video
+var remoteCanvas = document.getElementById('remoteCanvas');
+var photoContext = remoteCanvas.getContext('2d');
+var photoContextW;
+var photoContextH;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
@@ -185,6 +189,14 @@ function gotStream(stream) {
   // Live video starts
   var streamURL = window.URL.createObjectURL(stream);
   localVideo.src = streamURL;
+
+  localVideo.onloadedmetadata = function() {
+    remoteCanvas.width = photoContextW = localVideo.videoWidth;
+    remoteCanvas.height = photoContextH = localVideo.videoHeight;
+    console.log('gotStream with with and height:', photoContextW, photoContextH);
+  };
+  // Using photo-data from the video stream to create a matching photocontext
+  draw();
   // Live video code ends
 
   // Live audio starts
@@ -555,4 +567,9 @@ function changeBuffer() {
   output1 = new AudioSampleQueue(txrxBufferSize);
   output2 = new AudioSampleQueue(txrxBufferSize);
   console.log(bufferSize);
+}
+
+function draw() {
+  photoContext.drawImage(localVideo, 0, 0, remoteCanvas.width, remoteCanvas.height);
+  setTimeout(draw, 10);
 }
