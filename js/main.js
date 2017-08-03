@@ -80,6 +80,7 @@ var photoContextH;
 // Peerconnection and data channel variables
 var liveDataChannel;
 var clipDataChannel;
+var videoDataChannel;
 
 var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
@@ -279,6 +280,7 @@ function signalingMessageCallback(message) {
     // BAI
     liveDataChannel.close();
     clipDataChannel.close();
+    videoDataChannel.close();
     dataChannelNotification.textContent = 'Data channel connection closed!';
     dataChannelNotification.style.color = 'red';
     isInitiator = true;
@@ -329,8 +331,10 @@ function createPeerConnection(isInitiator, config) {
     console.log('Creating Data Channel');
     liveDataChannel = peerCon.createDataChannel('live');
     clipDataChannel = peerCon.createDataChannel('clip');
+    videoDataChannel = peerCon.createDataChannel('video');
     onDataChannelCreated(liveDataChannel);
     onDataChannelCreated(clipDataChannel);
+    onDataChannelCreated(videoDataChannel);
 
     console.log('Creating an offer');
     peerCon.createOffer(onLocalSessionCreated, logError);
@@ -341,9 +345,11 @@ function createPeerConnection(isInitiator, config) {
       if(event.channel.label == 'live'){
         liveDataChannel = event.channel;
         onDataChannelCreated(liveDataChannel);
-      } else {
+      } else if(event.channel.label == 'clip'){
         clipDataChannel = event.channel;
         onDataChannelCreated(clipDataChannel);
+      } else {
+        onDataChannelCreated(videoDataChannel);
       }
     };
   }
@@ -507,6 +513,7 @@ window.onbeforeunload = function() {
   sendMessage('bye');
   liveDataChannel.close();
   clipDataChannel.close();
+  videoDataChannel.close();
 }
 
 function logError(err) {
