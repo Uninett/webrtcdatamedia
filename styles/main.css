@@ -7,6 +7,10 @@ html{
 }
 
 
+#videoCanvas{
+  margin-top: 10px;
+}
+
 /*
 // Generated clip styling
 */
