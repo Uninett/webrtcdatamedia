@@ -59,6 +59,7 @@ var localStream;
 var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
 var localVideo = document.querySelector('#localVideo');
+var videoBtn = document.querySelector('#videoBtn');
 var liveBtn = document.querySelector('#liveBtn');
 var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
@@ -196,10 +197,14 @@ function gotStream(stream) {
   localVideo.onloadedmetadata = function() {
     localCanvas.width = photoContextW = localVideo.videoWidth;
     localCanvas.height = photoContextH = localVideo.videoHeight;
+    remoteCanvas.width = photoContextW;
+    remoteCanvas.height = photoContextH;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
   };
-  // Using photo-data from the video stream to create a matching photocontext
-  draw();
+  videoBtn.onclick = function() {
+    // Using photo-data from the video stream to create a matching photocontext
+    draw();
+  }
   // Live video code ends
 
   // Live audio starts
@@ -306,7 +311,6 @@ function signalingMessageCallback(message) {
       document.getElementById('bufferSizeSelector').disabled = false;
     }
   }
-
 }
 
 function createPeerConnection(isInitiator, config) {
@@ -373,6 +377,7 @@ function onDataChannelCreated(channel) {
     console.log('CHANNEL opened!');
     dataChannelNotification.textContent = 'Data channel connection established!';
     dataChannelNotification.style.color = 'green';
+    videoBtn.disabled = false;
     notifications.appendChild(dataChannelNotification);
   };
 
@@ -391,7 +396,7 @@ function onDataChannelCreated(channel) {
 }
 
 /*
-// Sends live audio stream throigh data channel
+// Receives live audio stream throigh data channel
 */
 function receiveLiveData() {
   return function onmessage(event) {
@@ -408,13 +413,37 @@ function receiveLiveData() {
 }
 
 /*
-// Sends audio clip
+// Receives audio clip
 */
 function receiveClipData() {
   return function onmessage(event){
     var data = new Uint8ClampedArray(event.data);
     var blob = new Blob([data], { 'type' : 'audio/ogg; codecs=opus' });
     receiveAudio(blob);
+  }
+}
+
+/*
+// Receives video stream (images)
+*/
+function receiveVideoData() {
+  var buf, count;
+
+  return function onmessage(event){
+    if (typeof event.data === 'string') {
+      buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
+      count = 0;
+      console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+      return;
+    }
+
+    var data = new Uint8ClampedArray(event.data);
+    buf.set(data, count);
+    count += data.byteLength;
+
+    if(count === buf.byteLength) {
+      renderPhoto(buf);
+    }
   }
 }
 
@@ -584,6 +613,11 @@ function changeBuffer() {
 function sendImage() {
   var CHUNK_LEN = 64000;
   var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
+  var len = img.data.byteLength;
+  var n = len / CHUNK_LEN | 0;
+
+  console.log('Sending a total of ' + len + ' byte(s)');
+  videoDataChannel.send(len);
 
   // split the photo and send in chunks of about 64KB
   for (var i = 0; i < n; i++) {
@@ -596,15 +630,18 @@ function sendImage() {
   // send the reminder, if any
   if (len % CHUNK_LEN) {
     console.log('last ' + len % CHUNK_LEN + ' byte(s)');
-    dataChannel.send(img.data.subarray(n * CHUNK_LEN));
+    videoDataChannel.send(img.data.subarray(n * CHUNK_LEN));
   }
 }
 
-function receiveVideoData() {
-
+function renderPhoto(data) {
+  var img = remoteContext.createImageData(photoContextW, photoContextH);
+  img.data.set(data);
+  remoteContext.putImageData(img, 0, 0);
 }
 
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
+  sendImage();
   setTimeout(draw, 10);
 }
