@@ -73,7 +73,9 @@ var liveAudioNotification = document.createElement('p');
 // Photo context variables for video grab data
 // remoteCanvas is a canvas with continously an updated photo-context to make a video
 var remoteCanvas = document.getElementById('remoteCanvas');
-var photoContext = remoteCanvas.getContext('2d');
+var localCanvas = document.getElementById('localCanvas');
+var remoteContext = remoteCanvas.getContext('2d');
+var localContext = localCanvas.getContext('2d');
 var photoContextW;
 var photoContextH;
 
@@ -192,8 +194,8 @@ function gotStream(stream) {
   localVideo.src = streamURL;
 
   localVideo.onloadedmetadata = function() {
-    remoteCanvas.width = photoContextW = localVideo.videoWidth;
-    remoteCanvas.height = photoContextH = localVideo.videoHeight;
+    localCanvas.width = photoContextW = localVideo.videoWidth;
+    localCanvas.height = photoContextH = localVideo.videoHeight;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
   };
   // Using photo-data from the video stream to create a matching photocontext
@@ -349,6 +351,7 @@ function createPeerConnection(isInitiator, config) {
         clipDataChannel = event.channel;
         onDataChannelCreated(clipDataChannel);
       } else {
+        videoDataChannel = event.channel;
         onDataChannelCreated(videoDataChannel);
       }
     };
@@ -376,8 +379,10 @@ function onDataChannelCreated(channel) {
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
   if(channel.label == 'live') {
     channel.onmessage = receiveLiveData();
-  } else {
+  } else if(channel.label == 'clip'){
     channel.onmessage = receiveClipData();
+  } else {
+    channel.onmessage = receiveVideoData();
   }
 
   channel.onclose = function() {
@@ -578,14 +583,28 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 64000;
+  var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
 
+  // split the photo and send in chunks of about 64KB
+  for (var i = 0; i < n; i++) {
+    var start = i * CHUNK_LEN,
+    end = (i + 1) * CHUNK_LEN;
+    console.log(start + ' - ' + (end - 1));
+    videoDataChannel.send(img.data.subarray(start, end));
+  }
+
+  // send the reminder, if any
+  if (len % CHUNK_LEN) {
+    console.log('last ' + len % CHUNK_LEN + ' byte(s)');
+    dataChannel.send(img.data.subarray(n * CHUNK_LEN));
+  }
 }
 
-function receiveImage() {
+function receiveVideoData() {
 
 }
 
 function draw() {
-  photoContext.drawImage(localVideo, 0, 0, remoteCanvas.width, remoteCanvas.height);
+  localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   setTimeout(draw, 10);
 }
