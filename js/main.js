@@ -576,6 +576,15 @@ function changeBuffer() {
   console.log(bufferSize);
 }
 
+function sendImage() {
+  var CHUNK_LEN = 64000;
+
+}
+
+function receiveImage() {
+
+}
+
 function draw() {
   photoContext.drawImage(localVideo, 0, 0, remoteCanvas.width, remoteCanvas.height);
   setTimeout(draw, 10);

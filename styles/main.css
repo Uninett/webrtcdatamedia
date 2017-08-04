@@ -11,6 +11,11 @@ html{
   margin-top: 10px;
 }
 
+#localCanvas{
+  visibility: hidden;
+  position: absolute;
+}
+
 /*
 // Generated clip styling
 */
