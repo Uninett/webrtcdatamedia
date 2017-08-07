@@ -618,7 +618,6 @@ function sendImage() {
 
   console.log('Sending a total of ' + len + ' byte(s)');
   videoDataChannel.send(len);
-
   // split the photo and send in chunks of about 64KB
   for (var i = 0; i < n; i++) {
     var start = i * CHUNK_LEN,
@@ -643,5 +642,5 @@ function renderPhoto(data) {
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   sendImage();
-  setTimeout(draw, 10);
+  setTimeout(draw, 100);
 }
