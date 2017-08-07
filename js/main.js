@@ -433,26 +433,51 @@ function receiveClipData() {
 /*
 // Receives video stream (images)
 */
+// function receiveVideoData() {
+//   var buf, count;
+//
+//   return function onmessage(event){
+//     if (typeof event.data !== 'object') {
+//       // console.log(event.data);
+//       buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
+//       count = 0;
+//       // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+//       return;
+//     }
+//
+//     var data = new Uint8ClampedArray(event.data);
+//     buf.set(data, count);
+//     count += data.byteLength;
+//
+//     if(count === buf.byteLength) {
+//       renderPhoto(buf);
+//     }
+//
+//     bytesReceived += data.byteLength;
+//   }
+// }
+
 function receiveVideoData() {
-  var buf, count;
+  var buf = '';
+  var bufEmpty = true;
 
   return function onmessage(event){
-    if (typeof event.data === 'string') {
-      buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
-      count = 0;
+    if (event.data.substring(0,5) === 'data:') {
+      if(!bufEmpty) {
+        renderPhoto(buf);
+        bufEmpty = true;
+        buf = '';
+      }
+      // console.log(event.data);
+
       // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
-      return;
     }
 
-    var data = new Uint8ClampedArray(event.data);
-    buf.set(data, count);
-    count += data.byteLength;
+    buf = buf.concat(event.data);
+    bufEmpty = false;
 
-    if(count === buf.byteLength) {
-      renderPhoto(buf);
-    }
-
-    bytesReceived += data.byteLength;
+    var blob = new Blob([event.data], {type: 'text/plain'});
+    bytesReceived += blob.size;
   }
 }
 
@@ -620,35 +645,66 @@ function changeBuffer() {
   console.log(bufferSize);
 }
 
+// function sendImage() {
+//   var CHUNK_LEN = 64000;
+//   var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
+//   var len = img.data.byteLength;
+//   var n = len / CHUNK_LEN | 0;
+//
+//   // console.log('Sending a total of ' + len + ' byte(s)');
+//   videoDataChannel.send(len);
+//   // split the photo and send in chunks of about 64KB
+//   for (var i = 0; i < n; i++) {
+//     var start = i * CHUNK_LEN,
+//     end = (i + 1) * CHUNK_LEN;
+//     // console.log(start + ' - ' + (end - 1));
+//     videoDataChannel.send(img.data.subarray(start, end));
+//   }
+//
+//   // send the reminder, if any
+//   if (len % CHUNK_LEN) {
+//     // console.log('last ' + len % CHUNK_LEN + ' byte(s)');
+//     videoDataChannel.send(img.data.subarray(n * CHUNK_LEN));
+//   }
+//
+//   bytesSent += len;
+// }
+
 function sendImage() {
-  var CHUNK_LEN = 64000;
-  var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
-  var len = img.data.byteLength;
+  var CHUNK_LEN = 6400;
+  var imgUrl = localCanvas.toDataURL('image/jpeg');
+  var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
-  // console.log('Sending a total of ' + len + ' byte(s)');
-  videoDataChannel.send(len);
-  // split the photo and send in chunks of about 64KB
+  // console.log('Sending a total of ' + len + ' character(s)');
+  // split the url and send in chunks of about 64KB
   for (var i = 0; i < n; i++) {
     var start = i * CHUNK_LEN,
     end = (i + 1) * CHUNK_LEN;
     // console.log(start + ' - ' + (end - 1));
-    videoDataChannel.send(img.data.subarray(start, end));
+    videoDataChannel.send(imgUrl.substring(start, end));
   }
 
   // send the reminder, if any
   if (len % CHUNK_LEN) {
     // console.log('last ' + len % CHUNK_LEN + ' byte(s)');
-    videoDataChannel.send(img.data.subarray(n * CHUNK_LEN));
+    videoDataChannel.send(imgUrl.substring(n * CHUNK_LEN));
   }
 
-  bytesSent += len;
+  var blob = new Blob([imgUrl], {type: 'text/plain'});
+  bytesSent += blob.size;
 }
 
-function renderPhoto(data) {
-  var img = remoteContext.createImageData(photoContextW, photoContextH);
-  img.data.set(data);
-  remoteContext.putImageData(img, 0, 0);
+// function renderPhoto(data) {
+//   var img = remoteContext.createImageData(photoContextW, photoContextH);
+//   img.data.set(data);
+//   remoteContext.putImageData(img, 0, 0);
+// }
+
+function renderPhoto(dataUrl) {
+  var img = new Image();
+  img.src = dataUrl;
+  remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
 }
 
 function draw() {
@@ -658,7 +714,7 @@ function draw() {
   // img.src = imgUrl;
   // remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
   sendImage();
-  setTimeout(draw, 50);
+  setTimeout(draw, 10);
 }
 
 function printBitRate() {
