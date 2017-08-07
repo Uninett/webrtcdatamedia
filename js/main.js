@@ -67,6 +67,9 @@ var stopBtn = document.getElementById('stopBtn');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
+var bitRate = document.querySelector('#bitRate');
+var bytesSentTxt = document.querySelector('#bytesSent');
+var bytesReceivedTxt = document.querySelector('#bytesReceived');
 var liveAudio = document.querySelector('#liveAudio');
 var dataChannelNotification = document.createElement('p');
 var liveAudioNotification = document.createElement('p');
@@ -79,6 +82,8 @@ var remoteContext = remoteCanvas.getContext('2d');
 var localContext = localCanvas.getContext('2d');
 var photoContextW;
 var photoContextH;
+var bytesReceived = 0;
+var bytesSent = 0;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
@@ -102,7 +107,7 @@ var isInitiator;
 
 var room = window.location.hash.substring(1);
 if (!room) {
-  room = window.location.hash = prompt('Enter a room name:');;
+  room = window.location.hash = prompt('Enter a room name:');
 }
 
 /*******************************************************************************
@@ -172,7 +177,7 @@ function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: true
+    video: {width: 240, height: 180}
   })
   .then(gotStream)
   .catch(function(e) {
@@ -208,6 +213,7 @@ function gotStream(stream) {
   // Live video code ends
 
   // Live audio starts
+  printBitRate();
   liveBtn.disabled = false;
 
   liveBtn.onclick = function() {
@@ -335,9 +341,9 @@ function createPeerConnection(isInitiator, config) {
 
   if(isInitiator) {
     console.log('Creating Data Channel');
-    liveDataChannel = peerCon.createDataChannel('live');
+    liveDataChannel = peerCon.createDataChannel('live', {maxRetransmits: 0, ordered: false});
     clipDataChannel = peerCon.createDataChannel('clip');
-    videoDataChannel = peerCon.createDataChannel('video');
+    videoDataChannel = peerCon.createDataChannel('video', {maxRetransmits: 0, ordered: false});
     onDataChannelCreated(liveDataChannel);
     onDataChannelCreated(clipDataChannel);
     onDataChannelCreated(videoDataChannel);
@@ -409,6 +415,7 @@ function receiveLiveData() {
       output1.enqueue(remoteAudioBuffer[sample]);
       output2.enqueue(remoteAudioBuffer[sample]);
     }
+    bytesReceived += remoteAudioBuffer.length*4;
   }
 }
 
@@ -433,7 +440,7 @@ function receiveVideoData() {
     if (typeof event.data === 'string') {
       buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
       count = 0;
-      console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+      // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
       return;
     }
 
@@ -444,6 +451,8 @@ function receiveVideoData() {
     if(count === buf.byteLength) {
       renderPhoto(buf);
     }
+
+    bytesReceived += data.byteLength;
   }
 }
 
@@ -577,6 +586,7 @@ function startBuffer() {
     */
     var input = e.inputBuffer.getChannelData(0);
     liveDataChannel.send(input);
+    bytesSent += input.length * 4;
 
     // if(outputFront == outputEnd){
       // console.log(outputEnd);
@@ -616,21 +626,23 @@ function sendImage() {
   var len = img.data.byteLength;
   var n = len / CHUNK_LEN | 0;
 
-  console.log('Sending a total of ' + len + ' byte(s)');
+  // console.log('Sending a total of ' + len + ' byte(s)');
   videoDataChannel.send(len);
   // split the photo and send in chunks of about 64KB
   for (var i = 0; i < n; i++) {
     var start = i * CHUNK_LEN,
     end = (i + 1) * CHUNK_LEN;
-    console.log(start + ' - ' + (end - 1));
+    // console.log(start + ' - ' + (end - 1));
     videoDataChannel.send(img.data.subarray(start, end));
   }
 
   // send the reminder, if any
   if (len % CHUNK_LEN) {
-    console.log('last ' + len % CHUNK_LEN + ' byte(s)');
+    // console.log('last ' + len % CHUNK_LEN + ' byte(s)');
     videoDataChannel.send(img.data.subarray(n * CHUNK_LEN));
   }
+
+  bytesSent += len;
 }
 
 function renderPhoto(data) {
@@ -641,6 +653,18 @@ function renderPhoto(data) {
 
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
+  // var imgUrl = localCanvas.toDataURL('image/jpeg');
+  // var img = new Image();
+  // img.src = imgUrl;
+  // remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
   sendImage();
-  setTimeout(draw, 100);
+  setTimeout(draw, 50);
+}
+
+function printBitRate() {
+  bytesReceivedTxt.innerHTML = bytesReceived*8;
+  bytesSentTxt.innerHTML = bytesSent*8;
+  bytesReceived = 0;
+  bytesSent = 0;
+  setTimeout(printBitRate, 1000);
 }
