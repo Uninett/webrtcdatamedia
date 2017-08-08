@@ -205,7 +205,6 @@ function gotStream(stream) {
     remoteCanvas.width = photoContextW;
     remoteCanvas.height = photoContextH;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
-    console.log('');
     // window.setTimeout(renderPhoto2, 1000);
     // window.setTimeout(renderPhoto2, 5000);
   };
