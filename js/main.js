@@ -177,7 +177,7 @@ function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: {width: 240, height: 180}
+    video: {width: 640, height: 480, frameRate: { ideal: 60, max: 60 }}
   })
   .then(gotStream)
   .catch(function(e) {
@@ -205,6 +205,9 @@ function gotStream(stream) {
     remoteCanvas.width = photoContextW*2;
     remoteCanvas.height = photoContextH*2;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
+    console.log('');
+    // window.setTimeout(renderPhoto2, 1000);
+    // window.setTimeout(renderPhoto2, 5000);
   };
   videoBtn.onclick = function() {
     // Using photo-data from the video stream to create a matching photocontext
@@ -268,6 +271,7 @@ function gotStream(stream) {
     console.log(e.data);
   }
   // MediaRecorder ends
+
 }
 
 /****************************************************************************
@@ -672,7 +676,7 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg');
+  var imgUrl = localCanvas.toDataURL('image/jpeg', 0.8);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
@@ -704,13 +708,15 @@ function sendImage() {
 function renderPhoto(dataUrl) {
   var img = new Image();
   img.src = dataUrl;
-  remoteContext.drawImage(img, 0, 0, photoContextW*2, photoContextH*2);
+  img.onload = function() {
+    remoteContext.drawImage(img, 0, 0, photoContextW*2, photoContextH*2);
+  }
 }
 
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   sendImage();
-  setTimeout(draw, 10);
+  setTimeout(draw, 15);
 }
 
 function printBitRate() {
