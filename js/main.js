@@ -347,7 +347,7 @@ function createPeerConnection(isInitiator, config) {
     console.log('Creating Data Channel');
     liveDataChannel = peerCon.createDataChannel('live', {maxRetransmits: 0, ordered: false});
     clipDataChannel = peerCon.createDataChannel('clip');
-    videoDataChannel = peerCon.createDataChannel('video', {maxRetransmits: 0, ordered: false});
+    videoDataChannel = peerCon.createDataChannel('video', {maxRetransmits: 0, ordered: true});
     onDataChannelCreated(liveDataChannel);
     onDataChannelCreated(clipDataChannel);
     onDataChannelCreated(videoDataChannel);
