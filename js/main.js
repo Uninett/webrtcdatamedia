@@ -676,7 +676,7 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg', 0.5);
+  var imgUrl = localCanvas.toDataURL('image/jpeg', 0.3);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
