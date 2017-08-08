@@ -676,7 +676,7 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg', 0.8);
+  var imgUrl = localCanvas.toDataURL('image/jpeg', 0.5);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
@@ -716,7 +716,7 @@ function renderPhoto(dataUrl) {
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   sendImage();
-  setTimeout(draw, 15);
+  setTimeout(draw, 30);
 }
 
 function printBitRate() {
