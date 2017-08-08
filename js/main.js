@@ -202,8 +202,8 @@ function gotStream(stream) {
   localVideo.onloadedmetadata = function() {
     localCanvas.width = photoContextW = localVideo.videoWidth;
     localCanvas.height = photoContextH = localVideo.videoHeight;
-    remoteCanvas.width = photoContextW;
-    remoteCanvas.height = photoContextH;
+    remoteCanvas.width = photoContextW*2;
+    remoteCanvas.height = photoContextH*2;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
   };
   videoBtn.onclick = function() {
@@ -672,7 +672,7 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg');
+  var imgUrl = localCanvas.toDataURL('image/jpeg', 1);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
@@ -704,15 +704,11 @@ function sendImage() {
 function renderPhoto(dataUrl) {
   var img = new Image();
   img.src = dataUrl;
-  remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
+  remoteContext.drawImage(img, 0, 0, photoContextW*2, photoContextH*2);
 }
 
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
-  // var imgUrl = localCanvas.toDataURL('image/jpeg');
-  // var img = new Image();
-  // img.src = imgUrl;
-  // remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
   sendImage();
   setTimeout(draw, 10);
 }
