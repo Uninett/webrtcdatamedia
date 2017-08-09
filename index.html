@@ -7,16 +7,14 @@
 </head>
 
 <body>
-  <div id="container">
-    <h1> Send audio clips using the data channel </h1>
 
-    <div id="notifications">
+  <div id="grid">
+    <div id="header">
+      <h1> Send audio clips using the data channel </h1>
 
-    </div>
+      <div id="notifications">
 
-    <div id="bitRate">
-      <p id="bytesSent"> </p>
-      <p id="bytesReceived"> </p>
+      </div>
     </div>
 
     <div id="buttons">
@@ -40,10 +38,15 @@
       </select>
     </div>
 
-    <div id="videoCanvas">
+    <div id="videoContainer">
       <video id="localVideo" autoplay muted></video>
       <canvas id="localCanvas"></canvas>
       <canvas id="remoteCanvas"></canvas>
+    </div>
+
+    <div id="bitRate">
+      <p id="bytesSent"> </p>
+      <p id="bytesReceived"> </p>
     </div>
 
     <section class="local-clips">
@@ -53,6 +56,10 @@
     <section class="remote-clips">
       <h2> Remote Clips: </h2>
     </section>
+
+    <div id="footer">
+
+    </div>
   </div>
 
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script> -->

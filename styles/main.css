@@ -1,16 +1,55 @@
-html{
+body{
   margin: 0 auto;
 }
 
+#grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+  "header header"
+  "buttons selectors"
+  "videoContainer videoContainer"
+  "bitRate bitRate"
+  "localClips remoteClips"
+  "footer footer";
+}
+
+#header{
+  grid-area: header;
+  background-color: red;
+
+}
+
+#buttons {
+  grid-area: buttons;
+}
+
 #selectors{
+  grid-area: selectors;
   margin-top: 10px;
 }
 
 
-#videoCanvas{
+#videoContainer{
+  grid-area: videoContainer;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   margin-top: 10px;
 }
 
+
+#bitRate {
+  grid-area: bitRate;
+}
+
+#footer{
+  grid-area: footer;
+}
+
+/*
+// Hide the local canvas which is only for context sending purposes
+*/
 #localCanvas{
   visibility: hidden;
   position: absolute;
@@ -19,9 +58,6 @@ html{
 /*
 // Generated clip styling
 */
-#container{
-  text-align: center;
-}
 
 .clip{
   width: 500px;
