@@ -3,9 +3,12 @@ body{
 }
 
 #grid{
+  height: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto;
+  grid-row-gap: 15px;
+  grid-column-gap: 15px;
   grid-template-areas:
   "header header"
   "buttons selectors"
@@ -13,21 +16,39 @@ body{
   "bitRate bitRate"
   "localClips remoteClips"
   "footer footer";
+  background-color: #E5E0DC;
 }
 
 #header{
+  display: flex;
+  justify-content: space-between;
   grid-area: header;
-  background-color: red;
+  background-color: white;
 
 }
 
 #buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   grid-area: buttons;
+  background-color: white;
+  margin-left: 15px;
+}
+
+.btn{
+  padding: 5px;
+  width: 120px;
+  height: 50px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 #selectors{
   grid-area: selectors;
   margin-top: 10px;
+  background-color: white;
+  margin-right: 15px;
 }
 
 
@@ -36,6 +57,7 @@ body{
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin-top: 10px;
+  justify-items: center;
 }
 
 
@@ -45,6 +67,9 @@ body{
 
 #footer{
   grid-area: footer;
+  background-color: white;
+  bottom: 0;
+  width: 100%;
 }
 
 /*
