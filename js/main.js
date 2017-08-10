@@ -219,6 +219,7 @@ function gotStream(stream) {
     stopVideoBtn.disabled = false;
     localContext.save();
     localContext.scale(scale,scale);
+    scaleSlider.disabled = true;
     // Using photo-data from the video stream to create a matching photocontext
     draw();
   }
@@ -226,7 +227,6 @@ function gotStream(stream) {
 
   // Live audio starts
   printBitRate();
-  liveBtn.disabled = false;
 
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
@@ -396,7 +396,9 @@ function onDataChannelCreated(channel) {
     console.log('CHANNEL opened!');
     dataChannelNotification.textContent = 'Data channel connection established!';
     dataChannelNotification.style.color = 'green';
+    liveBtn.disabled = false;
     videoBtn.disabled = false;
+    scaleSlider.disabled = false;
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
@@ -410,6 +412,9 @@ function onDataChannelCreated(channel) {
 
   channel.onclose = function() {
     console.log('Closed');
+    videoBtn.disabled = true;
+    scaleSlider.disabled = true;
+    liveBtn.disabled = true;
   }
 }
 
@@ -726,6 +731,7 @@ function draw() {
   stopVideoBtn.onclick = function() {
     videoBtn.disabled = false;
     stopVideoBtn.disabled = true;
+    scaleSlider.disabled = false;
     clearTimeout(keepSending);
   }
 
