@@ -21,6 +21,7 @@ app.get('/', function(req, res) {
 
 app.use('/js', express.static(path.join(__dirname, '/js')));
 app.use('/styles', express.static(path.join(__dirname, '/styles')));
+app.use('/media', express.static(path.join(__dirname, '/media')));
 
 io.sockets.on('connection', function(socket) {
   connections.push(socket);

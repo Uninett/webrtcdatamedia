@@ -60,19 +60,21 @@ var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
 var localVideo = document.querySelector('#localVideo');
 var videoBtn = document.querySelector('#videoBtn');
+var stopVideoBtn = document.querySelector('#stopVideoBtn');
 var liveBtn = document.querySelector('#liveBtn');
 var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
+var compressionSlider = document.getElementById('compressionSlider');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
-var bitRate = document.querySelector('#bitRate');
 var bytesSentTxt = document.querySelector('#bytesSent');
 var bytesReceivedTxt = document.querySelector('#bytesReceived');
 var liveAudio = document.querySelector('#liveAudio');
-var dataChannelNotification = document.createElement('p');
+var dataChannelNotification = document.getElementById('dataChannelNotification');
 var liveAudioNotification = document.createElement('p');
+liveAudioNotification.className = "notifications";
 
 // Photo context variables for video grab data
 // remoteCanvas is a canvas with continously an updated photo-context to make a video
@@ -84,12 +86,17 @@ var photoContextW;
 var photoContextH;
 var bytesReceived = 0;
 var bytesSent = 0;
+var jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
+var framePeriod = document.getElementById("frameperiodNumber").innerHTML;
+var scale = (document.getElementById("scaleNumber").innerHTML)/100;
+var remoteScale;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
 var clipDataChannel;
 var videoDataChannel;
 
+// Audio buffer variables
 var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
@@ -177,7 +184,7 @@ function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: {width: 1920, height: 1080, frameRate: { ideal: 60, max: 60 }}
+    video: {width: 1980, height: 1080, frameRate: { ideal: 30, max: 60 }}
   })
   .then(gotStream)
   .catch(function(e) {
@@ -208,8 +215,14 @@ function gotStream(stream) {
     // window.setTimeout(renderPhoto2, 1000);
     // window.setTimeout(renderPhoto2, 5000);
   };
+  localContext.save();
   videoBtn.onclick = function() {
-    // localContext.scale(1,1);
+    videoBtn.disabled = true;
+    stopVideoBtn.disabled = false;
+    localContext.scale(scale,scale);
+    localCanvas.width = photoContextW * scale;
+    localCanvas.height = photoContextH * scale;
+    scaleSlider.disabled = true;
     // Using photo-data from the video stream to create a matching photocontext
     draw();
   }
@@ -217,7 +230,6 @@ function gotStream(stream) {
 
   // Live audio starts
   printBitRate();
-  liveBtn.disabled = false;
 
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
@@ -308,7 +320,7 @@ function signalingMessageCallback(message) {
     notifications.appendChild(liveAudioNotification);
 
   } else if (message === 'stopLive') {
-    liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
+    liveAudioNotification.textContent = 'Live audio has stopped.';
     liveAudioNotification.style.color = 'red';
 
     if (audioContext.state === 'running') {
@@ -367,6 +379,7 @@ function createPeerConnection(isInitiator, config) {
       } else {
         videoDataChannel = event.channel;
         onDataChannelCreated(videoDataChannel);
+        changeScaleInput((document.getElementById("scaleNumber").innerHTML));
       }
     };
   }
@@ -387,8 +400,9 @@ function onDataChannelCreated(channel) {
     console.log('CHANNEL opened!');
     dataChannelNotification.textContent = 'Data channel connection established!';
     dataChannelNotification.style.color = 'green';
+    liveBtn.disabled = false;
     videoBtn.disabled = false;
-    notifications.appendChild(dataChannelNotification);
+    scaleSlider.disabled = false;
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
@@ -402,6 +416,9 @@ function onDataChannelCreated(channel) {
 
   channel.onclose = function() {
     console.log('Closed');
+    videoBtn.disabled = true;
+    scaleSlider.disabled = true;
+    liveBtn.disabled = true;
   }
 }
 
@@ -411,7 +428,7 @@ function onDataChannelCreated(channel) {
 function receiveLiveData() {
   return function onmessage(event) {
     var remoteAudioBuffer = new Float32Array(event.data);
-    for (var sample = 0; sample < bufferSize; sample++) {
+    for (var sample = 0; sample < remoteAudioBuffer.length; sample++) {
       // make output equal to the same as the input
       // output1[outputFront] = remoteAudioBuffer[sample];
       // output2[outputFront] = remoteAudioBuffer[sample];
@@ -437,51 +454,32 @@ function receiveClipData() {
 /*
 // Receives video stream (images)
 */
-// function receiveVideoData() {
-//   var buf, count;
-//
-//   return function onmessage(event){
-//     if (typeof event.data !== 'object') {
-//       // console.log(event.data);
-//       buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
-//       count = 0;
-//       // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
-//       return;
-//     }
-//
-//     var data = new Uint8ClampedArray(event.data);
-//     buf.set(data, count);
-//     count += data.byteLength;
-//
-//     if(count === buf.byteLength) {
-//       renderPhoto(buf);
-//     }
-//
-//     bytesReceived += data.byteLength;
-//   }
-// }
-
 function receiveVideoData() {
   var buf = '';
   var bufEmpty = true;
 
   return function onmessage(event){
-    if (event.data.substring(0,5) === 'data:') {
-      if(!bufEmpty) {
-        renderPhoto(buf);
-        bufEmpty = true;
-        buf = '';
-      }
-      // console.log(event.data);
-
-      // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+    if(event.data.substring(0,6) === 'scale:') {
+      remoteScale = parseFloat(event.data.substring(6));
     }
+    else {
+      if (event.data.substring(0,5) === 'data:') {
+        if(!bufEmpty) {
+          renderPhoto(buf);
+          bufEmpty = true;
+          buf = '';
+        }
+        // console.log(event.data);
 
-    buf = buf.concat(event.data);
-    bufEmpty = false;
+        // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+      }
 
-    var blob = new Blob([event.data], {type: 'text/plain'});
-    bytesReceived += blob.size;
+      buf = buf.concat(event.data);
+      bufEmpty = false;
+
+      var blob = new Blob([event.data], {type: 'text/plain'});
+      bytesReceived += blob.size;
+    }
   }
 }
 
@@ -649,6 +647,28 @@ function changeBuffer() {
   console.log(bufferSize);
 }
 
+function changeCompression(value) {
+  document.getElementById("compressionNumber").innerHTML = value;
+  jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
+}
+
+// Only changes the viewed scale in the HTML
+function changeScaleView(value) {
+  document.getElementById("scaleNumber").innerHTML = value;
+}
+
+// Changed the scale variable in the code and sends it to the other peer
+function changeScaleInput(value) {
+  localContext.restore();
+  scale = (document.getElementById("scaleNumber").innerHTML)/100;
+  videoDataChannel.send("scale:" + scale);
+}
+
+function changeFrameperiod(value) {
+  document.getElementById("frameperiodNumber").innerHTML = value;
+  framePeriod = document.getElementById("frameperiodNumber").innerHTML;
+}
+
 // function sendImage() {
 //   var CHUNK_LEN = 64000;
 //   var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
@@ -676,12 +696,12 @@ function changeBuffer() {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg');
+  var imgUrl = localCanvas.toDataURL('image/jpeg', jpegQuality);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
   // console.log('Sending a total of ' + len + ' character(s)');
-  // split the url and send in chunks of about 64KB
+  // split the url and send in chunks of about 6,4KB
   for (var i = 0; i < n; i++) {
     var start = i * CHUNK_LEN,
     end = (i + 1) * CHUNK_LEN;
@@ -716,7 +736,15 @@ function renderPhoto(dataUrl) {
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   sendImage();
-  setTimeout(draw, 30);
+
+  stopVideoBtn.onclick = function() {
+    videoBtn.disabled = false;
+    stopVideoBtn.disabled = true;
+    scaleSlider.disabled = false;
+    clearTimeout(keepSending);
+  }
+
+  var keepSending = setTimeout(draw, framePeriod);
 }
 
 function printBitRate() {

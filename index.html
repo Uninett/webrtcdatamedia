@@ -7,52 +7,101 @@
 </head>
 
 <body>
-  <div id="container">
-    <h1> Send audio clips using the data channel </h1>
 
-    <div id="notifications">
+  <div id="grid">
+    <div id="header">
+      <img class="logo" src="media/uninett.svg" height="50px" />
 
-    </div>
+      <h1> Send audio and video using only the WebRTC data channel </h1>
 
-    <div id="bitRate">
-      <p id="bytesSent"> </p>
-      <p id="bytesReceived"> </p>
+      <div id="notifications">
+        <p id="dataChannelNotification" class="notifications"> Data Channel not yet created. Waiting for other peer. </p>
+      </div>
     </div>
 
     <div id="buttons">
-      <button id="videoBtn" disabled> Send live video</button>
-      <button id="liveBtn" disabled> Send live audio </button>
-      <button id="stopLiveBtn" disabled> Stop live audio </button>
-      <button id="recordBtn" disabled> Record </button>
-      <button id="stopBtn" disabled> Stop </button>
-      <input id="compressionSlider" type="range" min="1" max="10"/>
+      <h3> Audio and video controls: </h3>
+      <br />
+      <div class="buttonSet">
+        <button id="videoBtn" class="btn" disabled> Send live video</button>
+        <button id="stopVideoBtn" class="btn" disabled=""> Stop live video </button>
+      </div>
+      <div class="buttonSet">
+        <button id="liveBtn" class="btn" disabled> Send live audio </button>
+        <button id="stopLiveBtn" class="btn" disabled> Stop live audio </button>
+      </div>
+      <div class="buttonSet">
+        <button id="recordBtn" class="btn" disabled> Record </button>
+        <button id="stopBtn" class="btn" disabled> Stop </button>
+      </div>
     </div>
 
     <div id="selectors">
-      <select id="bufferSizeSelector" onchange="changeBuffer()">
-        <option value="256"> 256 </option>
-        <option value="512"> 512 </option>
-        <option value="1024"> 1024 </option>
-        <option value="2048"> 2048 </option>
-        <option value="4096"> 4096 </option>
-        <option value="8192"> 8192 </option>
-        <option value="16384"> 16384 </option>
-      </select>
+      <h3> Adjust your quality settings: </h3>
+
+      <div id="bufferSelector">
+        <p> Select the desired audio buffer size: </p>
+        <select id="bufferSizeSelector" onchange="changeBuffer()">
+          <option value="256"> 256 </option>
+          <option value="512"> 512 </option>
+          <option value="1024"> 1024 </option>
+          <option value="2048"> 2048 </option>
+          <option value="4096"> 4096 </option>
+          <option value="8192"> 8192 </option>
+          <option value="16384"> 16384 </option>
+        </select>
+      </div>
+
+      <div id="compressionContainer">
+        <p> Input the jpeg compression quality (Higher is better): </p>
+        <input id="compressionSlider" class="slider" type="range" min="1" max="100" value="92" oninput="changeCompression(this.value)"/>
+        <span id="compressionNumber"> 92 </span>
+      </div>
+
+      <div id="scaleContainer">
+        <p> Input the scale quality (Higher is better): </p>
+        <input id="scaleSlider" class="slider" type="range" min="1" max="100" value="100" oninput="changeScaleView(this.value)" onchange="changeScaleInput(this.value)" disabled/>
+        <span id="scaleNumber">100</span>
+      </div>
+
+      <div id="frameperiodContainer">
+        <p> Input the frame period: </p>
+        <input id="frameperiodSlider" class="slider" type="range" min="1" max="500" value="30" oninput="changeFrameperiod(this.value)"/>
+        <span id="frameperiodNumber">30</span>
+      </div>
     </div>
 
-    <div id="videoCanvas">
+    <div id="videoContainer">
       <video id="localVideo" autoplay muted></video>
       <canvas id="localCanvas"></canvas>
       <canvas id="remoteCanvas"></canvas>
     </div>
 
-    <section class="local-clips">
-      <h2> Local Clips: </h2>
-    </section>
+    <div id="bitRate">
+      <div id="bitRateSent">
+        <p> Bitrate sent: </p>
+        <p id="bytesSent"> </p>
+      </div>
+      <div id="bitRateReceived">
+        <p> Bitrate Received: </p>
+        <p id="bytesReceived"> </p>
+      </div>
+    </div>
 
-    <section class="remote-clips">
-      <h2> Remote Clips: </h2>
-    </section>
+    <div id="clipsContainer">
+      <section class="local-clips">
+        <h2> Local Clips: </h2>
+      </section>
+
+      <section class="remote-clips">
+        <h2> Remote Clips: </h2>
+      </section>
+    </div>
+
+    <div id="footer">
+      <img class="logo" src="media/uninett.svg" height="40px" />
+      <p> Summer project 2017 </p>
+    </div>
   </div>
 
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script> -->
