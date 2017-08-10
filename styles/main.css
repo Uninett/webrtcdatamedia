@@ -76,6 +76,10 @@ body{
   width: 600px;
 }
 
+#scaleSlider:disabled{
+  opacity: 0.3;
+}
+
 #videoContainer{
   display: flex;
   grid-area: videoContainer;

@@ -88,7 +88,7 @@ var bytesReceived = 0;
 var bytesSent = 0;
 var jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
 var framePeriod = document.getElementById("frameperiodNumber").innerHTML;
-var scale = (document.getElementById("scaleNumber").innerHTML)100;
+var scale = (document.getElementById("scaleNumber").innerHTML)/100;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
@@ -217,7 +217,8 @@ function gotStream(stream) {
   videoBtn.onclick = function() {
     videoBtn.disabled = true;
     stopVideoBtn.disabled = false;
-    localContext.scale(1,1);
+    localContext.save();
+    localContext.scale(scale,scale);
     // Using photo-data from the video stream to create a matching photocontext
     draw();
   }
@@ -637,9 +638,16 @@ function changeCompression(value) {
   jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
 }
 
-function changeScale(value) {
+// Only changes the viewed scale in the HTML
+function changeScaleView(value) {
   document.getElementById("scaleNumber").innerHTML = value;
-  scale = (document.getElementById("scaleNumber").innerHTML)100;
+}
+
+// Changed the scale variable in the code and sends it to the other peer
+function changeScaleInput(value) {
+  localContext.restore();
+  scale = (document.getElementById("scaleNumber").innerHTML)/100;
+  videoDataChannel.send("scale:" + scale);
 }
 
 function changeFrameperiod(value) {
@@ -679,7 +687,7 @@ function sendImage() {
   var n = len / CHUNK_LEN | 0;
 
   // console.log('Sending a total of ' + len + ' character(s)');
-  // split the url and send in chunks of about 64KB
+  // split the url and send in chunks of about 6,4KB
   for (var i = 0; i < n; i++) {
     var start = i * CHUNK_LEN,
     end = (i + 1) * CHUNK_LEN;
@@ -707,7 +715,7 @@ function renderPhoto(dataUrl) {
   var img = new Image();
   img.src = dataUrl;
   img.onload = function() {
-    remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
+    remoteContext.drawImage(img, 0, 0, photoContextW*(1/scale), photoContextH*(1/scale));
   }
 }
 
