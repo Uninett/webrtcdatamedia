@@ -63,7 +63,7 @@ body{
 
 #selectors *{
   margin-top: 5px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-left: 20px;
 }
 
@@ -73,7 +73,7 @@ body{
 }
 
 .slider{
-  width: 300px;
+  width: 600px;
 }
 
 #videoContainer{

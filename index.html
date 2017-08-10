@@ -40,7 +40,7 @@
       <h3> Adjust your quality settings: </h3>
 
       <div id="bufferSelector">
-        <p> Select the desired audio buffer size (Must match the other peer): </p>
+        <p> Select the desired audio buffer size: </p>
         <select id="bufferSizeSelector" onchange="changeBuffer()">
           <option value="256"> 256 </option>
           <option value="512"> 512 </option>
@@ -52,20 +52,22 @@
         </select>
       </div>
 
-      <br />
-
       <div id="compressionContainer">
         <p> Input the jpeg compression quality (Higher is better): </p>
         <input id="compressionSlider" class="slider" type="range" min="1" max="100" value="92" oninput="changeCompression(this.value)"/>
         <span id="compressionNumber"> 92 </span>
       </div>
 
-      <br />
-
       <div id="scaleContainer">
-        <p> Input the scale quality before sending (Higher is better): </p>
-        <input id="scaleSlider" class="slider" type="range" min="1" max="10" value="10" oninput="changeScale(this.value)"/>
+        <p> Input the scale quality (Higher is better): </p>
+        <input id="scaleSlider" class="slider" type="range" min="1" max="100" value="10" oninput="changeScale(this.value)"/>
         <span id="scaleNumber">10</span>
+      </div>
+
+      <div id="frameperiodContainer">
+        <p> Input the frame period: </p>
+        <input id="frameperiodSlider" class="slider" type="range" min="1" max="500" value="30" oninput="changeFrameperiod(this.value)"/>
+        <span id="frameperiodNumber">30</span>
       </div>
     </div>
 

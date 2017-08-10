@@ -87,6 +87,8 @@ var photoContextH;
 var bytesReceived = 0;
 var bytesSent = 0;
 var jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
+var framePeriod = document.getElementById("frameperiodNumber").innerHTML;
+var scale = (document.getElementById("scaleNumber").innerHTML)100;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
@@ -181,7 +183,7 @@ function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: {width: 1920, height: 1080, frameRate: { ideal: 60, max: 60 }}
+    video: {width: 1920, height: 1080, frameRate: { ideal: 30, max: 60 }}
   })
   .then(gotStream)
   .catch(function(e) {
@@ -314,7 +316,7 @@ function signalingMessageCallback(message) {
     notifications.appendChild(liveAudioNotification);
 
   } else if (message === 'stopLive') {
-    liveAudioNotification.textContent = 'The other peer has stopped streaming live audio';
+    liveAudioNotification.textContent = 'Live audio has stopped.';
     liveAudioNotification.style.color = 'red';
 
     if (audioContext.state === 'running') {
@@ -416,7 +418,7 @@ function onDataChannelCreated(channel) {
 function receiveLiveData() {
   return function onmessage(event) {
     var remoteAudioBuffer = new Float32Array(event.data);
-    for (var sample = 0; sample < bufferSize; sample++) {
+    for (var sample = 0; sample < remoteAudioBuffer.length; sample++) {
       // make output equal to the same as the input
       // output1[outputFront] = remoteAudioBuffer[sample];
       // output2[outputFront] = remoteAudioBuffer[sample];
@@ -631,12 +633,18 @@ function changeBuffer() {
 }
 
 function changeCompression(value) {
-  document.getElementById("compressionNumber").innerHTML= value;
+  document.getElementById("compressionNumber").innerHTML = value;
   jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
 }
 
 function changeScale(value) {
-  document.getElementById("scaleNumber").innerHTML= value;
+  document.getElementById("scaleNumber").innerHTML = value;
+  scale = (document.getElementById("scaleNumber").innerHTML)100;
+}
+
+function changeFrameperiod(value) {
+  document.getElementById("frameperiodNumber").innerHTML = value;
+  framePeriod = document.getElementById("frameperiodNumber").innerHTML;
 }
 
 // function sendImage() {
@@ -713,7 +721,7 @@ function draw() {
     clearTimeout(keepSending);
   }
 
-  var keepSending = setTimeout(draw, 30);
+  var keepSending = setTimeout(draw, framePeriod);
 }
 
 function printBitRate() {
