@@ -215,7 +215,7 @@ function gotStream(stream) {
   videoBtn.onclick = function() {
     videoBtn.disabled = true;
     stopVideoBtn.disabled = false;
-    // localContext.scale(1,1);
+    localContext.scale(1,1);
     // Using photo-data from the video stream to create a matching photocontext
     draw();
   }
@@ -442,30 +442,6 @@ function receiveClipData() {
 /*
 // Receives video stream (images)
 */
-// function receiveVideoData() {
-//   var buf, count;
-//
-//   return function onmessage(event){
-//     if (typeof event.data !== 'object') {
-//       // console.log(event.data);
-//       buf = window.buf = new Uint8ClampedArray(parseInt(event.data));
-//       count = 0;
-//       // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
-//       return;
-//     }
-//
-//     var data = new Uint8ClampedArray(event.data);
-//     buf.set(data, count);
-//     count += data.byteLength;
-//
-//     if(count === buf.byteLength) {
-//       renderPhoto(buf);
-//     }
-//
-//     bytesReceived += data.byteLength;
-//   }
-// }
-
 function receiveVideoData() {
   var buf = '';
   var bufEmpty = true;

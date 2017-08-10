@@ -15,7 +15,7 @@ body{
   ". buttons selectors ."
   "videoContainer videoContainer videoContainer videoContainer"
   ". bitRate bitRate ."
-  ". localClips remoteClips ."
+  ". clipsContainer clipsContainer ."
   "footer footer footer footer";
   background-color: #E5E0DC;
 }
@@ -77,31 +77,45 @@ body{
 }
 
 #videoContainer{
+  display: flex;
   grid-area: videoContainer;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   margin-top: 10px;
-  justify-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
-
 
 #bitRate {
   grid-area: bitRate;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+#clipsContainer{
+  grid-area: clipsContainer;
+  display: flex;
+  justify-content: space-around;
 }
 
 .local-clips{
-  grid-area: localClips;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .remote-clips{
-  grid-area: remoteClips;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 #footer{
   grid-area: footer;
+  padding-top: 15px;
   background-color: white;
   bottom: 0;
   width: 100%;
+  text-align: center;
 }
 
 /*

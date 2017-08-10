@@ -12,7 +12,7 @@
     <div id="header">
       <img class="logo" src="media/uninett.svg" height="50px" />
 
-      <h1> Send audio clips using the data channel </h1>
+      <h1> Send audio and video using only the WebRTC data channel </h1>
 
       <div id="notifications">
         <p id="dataChannelNotification" class="notifications"> Data Channel not yet created. Waiting for other peer. </p>
@@ -76,21 +76,29 @@
     </div>
 
     <div id="bitRate">
-      <p id="bytesSent"> </p>
-      <p id="bytesReceived"> </p>
+      <div id="bitRateSent">
+        <p> Bitrate sent: </p>
+        <p id="bytesSent"> </p>
+      </div>
+      <div id="bitRateReceived">
+        <p> Bitrate Received: </p>
+        <p id="bytesReceived"> </p>
+      </div>
     </div>
 
-    <section class="local-clips">
-      <h2> Local Clips: </h2>
-    </section>
+    <div id="clipsContainer">
+      <section class="local-clips">
+        <h2> Local Clips: </h2>
+      </section>
 
-    <section class="remote-clips">
-      <h2> Remote Clips: </h2>
-    </section>
+      <section class="remote-clips">
+        <h2> Remote Clips: </h2>
+      </section>
+    </div>
 
     <div id="footer">
-      <p>footer</p>
-      <p>footer</p>
+      <img class="logo" src="media/uninett.svg" height="40px" />
+      <p> Summer project 2017 </p>
     </div>
   </div>
 
