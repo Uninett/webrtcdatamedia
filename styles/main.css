@@ -24,7 +24,10 @@ body{
   justify-content: space-between;
   grid-area: header;
   background-color: white;
+}
 
+.logo{
+  padding: 15px;
 }
 
 #buttons {
@@ -45,10 +48,18 @@ body{
 }
 
 #selectors{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   grid-area: selectors;
   margin-top: 10px;
   background-color: white;
   margin-right: 15px;
+}
+
+#selectors *{
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 

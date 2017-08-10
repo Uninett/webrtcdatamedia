@@ -10,7 +10,7 @@
 
   <div id="grid">
     <div id="header">
-      <img src="media/uninett.svg" />
+      <img class="logo" src="media/uninett.svg" height="50px" />
 
       <h1> Send audio clips using the data channel </h1>
 
@@ -20,9 +20,14 @@
     </div>
 
     <div id="buttons">
-      <button id="videoBtn" class="btn" disabled> Send live video</button>
-      <button id="liveBtn" class="btn" disabled> Send live audio </button>
-      <button id="stopLiveBtn" class="btn" disabled> Stop live audio </button>
+      <div class="buttonSet">
+        <button id="videoBtn" class="btn" disabled> Send live video</button>
+        <button id="stopVideoBtn" class="btn" disabled=""> Stop live video </button>
+      </div>
+      <div class="buttonSet">
+        <button id="liveBtn" class="btn" disabled> Send live audio </button>
+        <button id="stopLiveBtn" class="btn" disabled> Stop live audio </button>
+      </div>
       <button id="recordBtn" class="btn" disabled> Record </button>
       <button id="stopBtn" class="btn" disabled> Stop </button>
     </div>
@@ -38,7 +43,8 @@
         <option value="16384"> 16384 </option>
       </select>
 
-      <input id="compressionSlider" type="range" min="1" max="10"/>
+      <input id="compressionSlider" type="range" min="1" max="10" value="10" oninput="changeCompression(this.value)"/>
+      <span id="compressionNumber">10</span>
     </div>
 
     <div id="videoContainer">

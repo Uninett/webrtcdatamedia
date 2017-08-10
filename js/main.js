@@ -60,10 +60,12 @@ var localAudio = document.querySelector('#localAudio');
 var remoteAudio = document.querySelector('#remoteAudio');
 var localVideo = document.querySelector('#localVideo');
 var videoBtn = document.querySelector('#videoBtn');
+var stopVideoBtn = document.querySelector('#stopVideoBtn');
 var liveBtn = document.querySelector('#liveBtn');
 var stopLiveBtn = document.querySelector('#stopLiveBtn');
 var recordBtn = document.getElementById('recordBtn');
 var stopBtn = document.getElementById('stopBtn');
+var compressionSlider = document.getElementById('compressionSlider');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
@@ -209,6 +211,8 @@ function gotStream(stream) {
     // window.setTimeout(renderPhoto2, 5000);
   };
   videoBtn.onclick = function() {
+    videoBtn.disabled = true;
+    stopVideoBtn.disabled = false;
     // localContext.scale(1,1);
     // Using photo-data from the video stream to create a matching photocontext
     draw();
@@ -649,6 +653,10 @@ function changeBuffer() {
   console.log(bufferSize);
 }
 
+function changeCompression(value) {
+  document.getElementById("compressionNumber").innerHTML= value;
+}
+
 // function sendImage() {
 //   var CHUNK_LEN = 64000;
 //   var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
@@ -716,7 +724,14 @@ function renderPhoto(dataUrl) {
 function draw() {
   localContext.drawImage(localVideo, 0, 0, localCanvas.width, localCanvas.height);
   sendImage();
-  setTimeout(draw, 30);
+
+  stopVideoBtn.onclick = function() {
+    videoBtn.disabled = false;
+    stopVideoBtn.disabled = true;
+    clearTimeout(keepSending);
+  }
+
+  var keepSending = setTimeout(draw, 30);
 }
 
 function printBitRate() {
