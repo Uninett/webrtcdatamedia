@@ -60,14 +60,14 @@
 
       <div id="scaleContainer">
         <p> Input the scale quality (Higher is better): </p>
-        <input id="scaleSlider" class="slider" type="range" min="1" max="100" value="100" oninput="changeScaleView(this.value)" onchange="changeScale(this.value)" disabled/>
+        <input id="scaleSlider" class="slider" type="range" min="1" max="100" value="100" oninput="changeScaleView(this.value)" onchange="changeScaleInput(this.value)" disabled/>
         <span id="scaleNumber">100</span>
       </div>
 
       <div id="frameperiodContainer">
         <p> Input the frame period: </p>
-        <input id="frameperiodSlider" class="slider" type="range" min="1" max="500" value="10" oninput="changeFrameperiod(this.value)"/>
-        <span id="frameperiodNumber">10</span>
+        <input id="frameperiodSlider" class="slider" type="range" min="1" max="500" value="30" oninput="changeFrameperiod(this.value)"/>
+        <span id="frameperiodNumber">30</span>
       </div>
     </div>
 

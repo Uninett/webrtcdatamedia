@@ -89,6 +89,7 @@ var bytesSent = 0;
 var jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
 var framePeriod = document.getElementById("frameperiodNumber").innerHTML;
 var scale = (document.getElementById("scaleNumber").innerHTML)/100;
+var remoteScale;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
@@ -183,7 +184,7 @@ function getMedia(){
   console.log('Getting user media (audio) ...');
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: {width: 1920, height: 1080, frameRate: { ideal: 30, max: 60 }}
+    video: {width: 1980, height: 1080, frameRate: { ideal: 30, max: 60 }}
   })
   .then(gotStream)
   .catch(function(e) {
@@ -214,11 +215,13 @@ function gotStream(stream) {
     // window.setTimeout(renderPhoto2, 1000);
     // window.setTimeout(renderPhoto2, 5000);
   };
+  localContext.save();
   videoBtn.onclick = function() {
     videoBtn.disabled = true;
     stopVideoBtn.disabled = false;
-    localContext.save();
     localContext.scale(scale,scale);
+    localCanvas.width = photoContextW * scale;
+    localCanvas.height = photoContextH * scale;
     scaleSlider.disabled = true;
     // Using photo-data from the video stream to create a matching photocontext
     draw();
@@ -376,6 +379,7 @@ function createPeerConnection(isInitiator, config) {
       } else {
         videoDataChannel = event.channel;
         onDataChannelCreated(videoDataChannel);
+        changeScaleInput((document.getElementById("scaleNumber").innerHTML));
       }
     };
   }
@@ -455,22 +459,27 @@ function receiveVideoData() {
   var bufEmpty = true;
 
   return function onmessage(event){
-    if (event.data.substring(0,5) === 'data:') {
-      if(!bufEmpty) {
-        renderPhoto(buf);
-        bufEmpty = true;
-        buf = '';
-      }
-      // console.log(event.data);
-
-      // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+    if(event.data.substring(0,6) === 'scale:') {
+      remoteScale = parseFloat(event.data.substring(6));
     }
+    else {
+      if (event.data.substring(0,5) === 'data:') {
+        if(!bufEmpty) {
+          renderPhoto(buf);
+          bufEmpty = true;
+          buf = '';
+        }
+        // console.log(event.data);
 
-    buf = buf.concat(event.data);
-    bufEmpty = false;
+        // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
+      }
 
-    var blob = new Blob([event.data], {type: 'text/plain'});
-    bytesReceived += blob.size;
+      buf = buf.concat(event.data);
+      bufEmpty = false;
+
+      var blob = new Blob([event.data], {type: 'text/plain'});
+      bytesReceived += blob.size;
+    }
   }
 }
 
@@ -720,7 +729,7 @@ function renderPhoto(dataUrl) {
   var img = new Image();
   img.src = dataUrl;
   img.onload = function() {
-    remoteContext.drawImage(img, 0, 0, photoContextW*(1/scale), photoContextH*(1/scale));
+    remoteContext.drawImage(img, 0, 0, photoContextW, photoContextH);
   }
 }
 
