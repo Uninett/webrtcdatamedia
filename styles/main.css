@@ -95,6 +95,7 @@ body{
   grid-area: clipsContainer;
   display: flex;
   justify-content: space-around;
+  background-color: #efeae6;
 }
 
 .local-clips{
