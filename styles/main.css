@@ -1,21 +1,22 @@
 body{
   margin: 0 auto;
+  font-family: "Arial", sans-serif;
 }
 
 #grid{
   height: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 100px 1fr 1fr 100px;
   grid-template-rows: auto;
   grid-row-gap: 15px;
   grid-column-gap: 15px;
   grid-template-areas:
-  "header header"
-  "buttons selectors"
-  "videoContainer videoContainer"
-  "bitRate bitRate"
-  "localClips remoteClips"
-  "footer footer";
+  "header header header header"
+  ". buttons selectors ."
+  "videoContainer videoContainer videoContainer videoContainer"
+  ". bitRate bitRate ."
+  ". localClips remoteClips ."
+  "footer footer footer footer";
   background-color: #E5E0DC;
 }
 
@@ -28,6 +29,10 @@ body{
 
 .logo{
   padding: 15px;
+}
+
+.notifications{
+  margin-right: 15px;
 }
 
 #buttons {
@@ -50,18 +55,26 @@ body{
 #selectors{
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   grid-area: selectors;
-  margin-top: 10px;
   background-color: white;
   margin-right: 15px;
 }
 
 #selectors *{
   margin-top: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
+  margin-left: 20px;
 }
 
+#compressionContainer{
+  display: column;
+  flex-direction: row;
+}
+
+.slider{
+  width: 300px;
+}
 
 #videoContainer{
   grid-area: videoContainer;
@@ -74,6 +87,14 @@ body{
 
 #bitRate {
   grid-area: bitRate;
+}
+
+.local-clips{
+  grid-area: localClips;
+}
+
+.remote-clips{
+  grid-area: remoteClips;
 }
 
 #footer{

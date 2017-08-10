@@ -15,11 +15,13 @@
       <h1> Send audio clips using the data channel </h1>
 
       <div id="notifications">
-
+        <p id="dataChannelNotification" class="notifications"> Data Channel not yet created. Waiting for other peer. </p>
       </div>
     </div>
 
     <div id="buttons">
+      <h3> Audio and video controls: </h3>
+      <br />
       <div class="buttonSet">
         <button id="videoBtn" class="btn" disabled> Send live video</button>
         <button id="stopVideoBtn" class="btn" disabled=""> Stop live video </button>
@@ -28,23 +30,43 @@
         <button id="liveBtn" class="btn" disabled> Send live audio </button>
         <button id="stopLiveBtn" class="btn" disabled> Stop live audio </button>
       </div>
-      <button id="recordBtn" class="btn" disabled> Record </button>
-      <button id="stopBtn" class="btn" disabled> Stop </button>
+      <div class="buttonSet">
+        <button id="recordBtn" class="btn" disabled> Record </button>
+        <button id="stopBtn" class="btn" disabled> Stop </button>
+      </div>
     </div>
 
     <div id="selectors">
-      <select id="bufferSizeSelector" onchange="changeBuffer()">
-        <option value="256"> 256 </option>
-        <option value="512"> 512 </option>
-        <option value="1024"> 1024 </option>
-        <option value="2048"> 2048 </option>
-        <option value="4096"> 4096 </option>
-        <option value="8192"> 8192 </option>
-        <option value="16384"> 16384 </option>
-      </select>
+      <h3> Adjust your quality settings: </h3>
 
-      <input id="compressionSlider" type="range" min="1" max="10" value="10" oninput="changeCompression(this.value)"/>
-      <span id="compressionNumber">10</span>
+      <div id="bufferSelector">
+        <p> Select the desired audio buffer size (Must match the other peer): </p>
+        <select id="bufferSizeSelector" onchange="changeBuffer()">
+          <option value="256"> 256 </option>
+          <option value="512"> 512 </option>
+          <option value="1024"> 1024 </option>
+          <option value="2048"> 2048 </option>
+          <option value="4096"> 4096 </option>
+          <option value="8192"> 8192 </option>
+          <option value="16384"> 16384 </option>
+        </select>
+      </div>
+
+      <br />
+
+      <div id="compressionContainer">
+        <p> Input the jpeg compression quality (Higher is better): </p>
+        <input id="compressionSlider" class="slider" type="range" min="1" max="100" value="92" oninput="changeCompression(this.value)"/>
+        <span id="compressionNumber"> 92 </span>
+      </div>
+
+      <br />
+
+      <div id="scaleContainer">
+        <p> Input the scale quality before sending (Higher is better): </p>
+        <input id="scaleSlider" class="slider" type="range" min="1" max="10" value="10" oninput="changeScale(this.value)"/>
+        <span id="scaleNumber">10</span>
+      </div>
     </div>
 
     <div id="videoContainer">

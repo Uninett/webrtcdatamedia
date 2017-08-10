@@ -69,12 +69,12 @@ var compressionSlider = document.getElementById('compressionSlider');
 var localClips = document.querySelector('.local-clips');
 var remoteClips = document.querySelector('.remote-clips');
 var notifications = document.querySelector('#notifications');
-// var bitRate = document.querySelector('#bitRate');
 var bytesSentTxt = document.querySelector('#bytesSent');
 var bytesReceivedTxt = document.querySelector('#bytesReceived');
 var liveAudio = document.querySelector('#liveAudio');
-var dataChannelNotification = document.createElement('p');
+var dataChannelNotification = document.getElementById('dataChannelNotification');
 var liveAudioNotification = document.createElement('p');
+liveAudioNotification.className = "notifications";
 
 // Photo context variables for video grab data
 // remoteCanvas is a canvas with continously an updated photo-context to make a video
@@ -86,12 +86,14 @@ var photoContextW;
 var photoContextH;
 var bytesReceived = 0;
 var bytesSent = 0;
+var jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
 
 // Peerconnection and data channel variables
 var liveDataChannel;
 var clipDataChannel;
 var videoDataChannel;
 
+// Audio buffer variables
 var bufferSize = document.getElementById('bufferSizeSelector').value;
 console.log(bufferSize);
 var txrxBufferSize = bufferSize*10;
@@ -392,7 +394,6 @@ function onDataChannelCreated(channel) {
     dataChannelNotification.textContent = 'Data channel connection established!';
     dataChannelNotification.style.color = 'green';
     videoBtn.disabled = false;
-    notifications.appendChild(dataChannelNotification);
   };
 
   // onmessage stores an EventHandler for whenever something is fired on the dataChannel
@@ -655,6 +656,11 @@ function changeBuffer() {
 
 function changeCompression(value) {
   document.getElementById("compressionNumber").innerHTML= value;
+  jpegQuality = (document.getElementById("compressionNumber").innerHTML)/100;
+}
+
+function changeScale(value) {
+  document.getElementById("scaleNumber").innerHTML= value;
 }
 
 // function sendImage() {
@@ -684,7 +690,7 @@ function changeCompression(value) {
 
 function sendImage() {
   var CHUNK_LEN = 6400;
-  var imgUrl = localCanvas.toDataURL('image/jpeg');
+  var imgUrl = localCanvas.toDataURL('image/jpeg', jpegQuality);
   var len = imgUrl.length;
   var n = len / CHUNK_LEN | 0;
 
