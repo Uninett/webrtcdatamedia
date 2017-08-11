@@ -183,7 +183,7 @@ function getMedia(){
   })
   .then(gotStream)
   .catch(function(e) {
-    alert('getUserMedia() error: ' + e.name);
+    alert('Error: ' + e.name);
   });
 }
 
@@ -223,7 +223,6 @@ function gotStream(stream) {
 
   // Live audio starts
   printBitRate();
-
   liveBtn.onclick = function() {
     liveBtn.disabled = true;
     stopLiveBtn.disabled = false;
@@ -306,7 +305,7 @@ function signalingMessageCallback(message) {
     liveDataChannel.close();
     clipDataChannel.close();
     videoDataChannel.close();
-    dataChannelNotification.textContent = 'Data channel connection closed!';
+    dataChannelNotification.textContent = 'The other peer has left the room!';
     dataChannelNotification.style.color = 'red';
     isInitiator = true;
 
@@ -353,6 +352,7 @@ function createPeerConnection(isInitiator, config) {
 
   if(isInitiator) {
     console.log('Creating Data Channel');
+    // Decide UDP or TCP
     liveDataChannel = peerCon.createDataChannel('live', {maxRetransmits: 0, ordered: false});
     clipDataChannel = peerCon.createDataChannel('clip');
     videoDataChannel = peerCon.createDataChannel('video', {maxRetransmits: 0, ordered: true});
@@ -425,10 +425,6 @@ function receiveLiveData() {
   return function onmessage(event) {
     var remoteAudioBuffer = new Float32Array(event.data);
     for (var sample = 0; sample < remoteAudioBuffer.length; sample++) {
-      // make output equal to the same as the input
-      // output1[outputFront] = remoteAudioBuffer[sample];
-      // output2[outputFront] = remoteAudioBuffer[sample];
-      // outputFront = (outputFront+1)%(txrxBufferSize);
       output1.enqueue(remoteAudioBuffer[sample]);
       output2.enqueue(remoteAudioBuffer[sample]);
     }
@@ -465,9 +461,6 @@ function receiveVideoData() {
           bufEmpty = true;
           buf = '';
         }
-        // console.log(event.data);
-
-        // console.log('Expecting a total of ' + buf.byteLength + ' bytes');
       }
 
       buf = buf.concat(event.data);
@@ -569,11 +562,6 @@ function receiveAudio(audioblob) {
   }
 }
 
-// Gives a random token to generate a random room name
-// function randomToken() {
-//   return Math.floor((1 + Math.random()) * 1e16).toString(16).substring(1);
-// }
-
 //Runs the code when the Peer exits the page
 window.onbeforeunload = function() {
   sendMessage('bye');
@@ -594,15 +582,16 @@ function startBuffer() {
   // Listens to the audiodata
   scriptNode.onaudioprocess = function(e) {
     /*
-    // Using audioBufferSourceNode to start Audio
+    Using audioBufferSourceNode to start Audio
+
+    var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+    var audioBufferSourceNode = audioContext.createBufferSource();
+    audioBufferSourceNode.connect(audioContext.destination);
+    audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
+    audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
+    audioBufferSourceNode.buffer = audioBuffer;
+    audioBufferSourceNode.start();
     */
-    // var audioBuffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
-    // var audioBufferSourceNode = audioContext.createBufferSource();
-    // audioBufferSourceNode.connect(audioContext.destination);
-    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(0), 0 , 0);
-    // audioBuffer.copyToChannel(e.inputBuffer.getChannelData(1), 1 , 0);
-    // audioBufferSourceNode.buffer = audioBuffer;
-    // audioBufferSourceNode.start();
 
     /*
     // Using ScriptNodeProcessor to start audio
@@ -611,8 +600,6 @@ function startBuffer() {
     liveDataChannel.send(input);
     bytesSent += input.length * 4;
 
-    // if(outputFront == outputEnd){
-      // console.log(outputEnd);
     if(output1.length() == 0){
 
     }
@@ -620,10 +607,6 @@ function startBuffer() {
       var outputBuffer1 = e.outputBuffer.getChannelData(0);
       var outputBuffer2 = e.outputBuffer.getChannelData(1);
       for (var sample = 0; sample < bufferSize; sample++) {
-        // make output equal to the same as the input
-        // outputBuffer1[sample] = output1[outputEnd];
-        // outputBuffer2[sample] = output2[outputEnd];
-        // outputEnd = (outputEnd+1)%(txrxBufferSize);
         outputBuffer1[sample] = output1.dequeue();
         outputBuffer2[sample] = output2.dequeue();
       }
@@ -634,10 +617,6 @@ function startBuffer() {
 function changeBuffer() {
   bufferSize = document.getElementById('bufferSizeSelector').value;
   txrxBufferSize = bufferSize*10;
-  // output1 = new Float32Array(txrxBufferSize);
-  // output2 = new Float32Array(txrxBufferSize);
-  // outputFront = txrxBufferSize;
-  // outputEnd = 0;
   output1 = new AudioSampleQueue(txrxBufferSize);
   output2 = new AudioSampleQueue(txrxBufferSize);
   console.log(bufferSize);
@@ -665,6 +644,8 @@ function changeFrameperiod(value) {
   framePeriod = document.getElementById("frameperiodNumber").innerHTML;
 }
 
+// Sending image using arrays
+
 // function sendImage() {
 //   var CHUNK_LEN = 64000;
 //   var img = localContext.getImageData(0, 0, photoContextW, photoContextH);
@@ -690,6 +671,7 @@ function changeFrameperiod(value) {
 //   bytesSent += len;
 // }
 
+// Sending image using dataURL
 function sendImage() {
   var CHUNK_LEN = 6400;
   var imgUrl = localCanvas.toDataURL('image/jpeg', jpegQuality);
@@ -715,12 +697,15 @@ function sendImage() {
   bytesSent += blob.size;
 }
 
+// Render image using arrays
+
 // function renderPhoto(data) {
 //   var img = remoteContext.createImageData(photoContextW, photoContextH);
 //   img.data.set(data);
 //   remoteContext.putImageData(img, 0, 0);
 // }
 
+// Render image using dataURL
 function renderPhoto(dataUrl) {
   var img = new Image();
   img.src = dataUrl;
