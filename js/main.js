@@ -46,12 +46,6 @@ class AudioSampleQueue {
     }
 }
 
-
-// var configuration = {
-//   'iceServers': [{
-//     'urls': 'stun:stun.l.google.com:19302'
-//   }]
-// };
 var configuration = null;
 var localStream;
 
@@ -112,6 +106,7 @@ var scriptNode;
 // isInitiator is the one who's creating the room
 var isInitiator;
 
+// Check if the room is in the URL, if not - promp the user to type in a room name.
 var room = window.location.hash.substring(1);
 if (!room) {
   room = window.location.hash = prompt('Enter a room name:');
@@ -134,9 +129,9 @@ if (room !== '') {
   console.log('Attempted to create or  join room', room);
 }
 
+// Set the turn/stun server credentials the server gives us
 socket.on('credentials', function(credentials) {
   configuration = credentials;
-  // configuration = credentials;
 })
 
 socket.on('created', function(room, clientId) {
@@ -177,7 +172,7 @@ function sendMessage(message) {
 }
 
 /****************************************************************************
-* User media (audio)
+* User media (audio and video)
 ****************************************************************************/
 
 function getMedia(){
@@ -212,8 +207,6 @@ function gotStream(stream) {
     remoteCanvas.width = photoContextW;
     remoteCanvas.height = photoContextH;
     console.log('gotStream with with and height:', photoContextW, photoContextH);
-    // window.setTimeout(renderPhoto2, 1000);
-    // window.setTimeout(renderPhoto2, 5000);
   };
   localContext.save();
   videoBtn.onclick = function() {
