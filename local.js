@@ -55,6 +55,7 @@ io.sockets.on('connection', function(socket) {
     console.log('Disconnected: %s sockets connected', connections.length);
   });
 
+  // Check if peer is initiator or not
   socket.on('create or join', function(room) {
     // Total number of clients in the socket
     log('Received request to create or join room ' + room);
