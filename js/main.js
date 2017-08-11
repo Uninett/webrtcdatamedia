@@ -198,8 +198,8 @@ function gotStream(stream) {
   }
 
   // Live video starts
-  var streamURL = window.URL.createObjectURL(stream);
-  localVideo.src = streamURL;
+  // var streamURL = window.URL.createObjectURL(stream);
+  localVideo.srcObject = stream;
 
   localVideo.onloadedmetadata = function() {
     localCanvas.width = photoContextW = localVideo.videoWidth;
@@ -246,9 +246,12 @@ function gotStream(stream) {
   // Live audio ends
 
   // MediaRecorder starts
-  var mediaRecorder = new MediaRecorder(localStream,  {mimeType : 'audio/webm; codecs=opus'});
+  // chromium: mimeType audio/webm
+  // firefox: mimeType audio/ogg
+  // var mediaRecorder = new MediaRecorder(localStream,  {mimeType : 'audio/webm; codecs=opus'});
+  var mediaRecorder = new MediaRecorder(localStream);
   var chunks = [];
-  recordBtn.disabled = false;
+  recordBtn.disabled = false
 
   recordBtn.onclick = function() {
     recordBtn.disabled = true;
