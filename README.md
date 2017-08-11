@@ -12,7 +12,7 @@ npm install
 node local.js
 ```
 
-Then open localhost:8080 to see your app. <br>
+Then open http://localhost:8080 to see your app. <br>
 
 * The server file local.js is used to run localhost, while app.js is deployed to the server. 
 
