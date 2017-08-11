@@ -1,3 +1,8 @@
+// ******************************************************************************* //
+// app.js is the server code to be deployed on a server
+// Use local.js to run localhost.
+// ******************************************************************************* //
+
 'use strict'
 
 var express = require('express');
@@ -8,6 +13,7 @@ var path = require('path');
 var fs = require('fs');
 var connections = [];
 
+// Place your turn config in a file on your server.
 var credentials = fs.readFileSync('/etc/audiopeerturn/credentials.json', 'utf8');
 
 // The default namespace is by default '/', but this variable is to use with numClientsInRoom

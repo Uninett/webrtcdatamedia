@@ -1,3 +1,8 @@
+// ******************************************************************************* //
+// local.js is the server code to run localhost
+// Use app.js to deploy it to your server.
+// ******************************************************************************* //
+
 'use strict'
 
 var express = require('express');
