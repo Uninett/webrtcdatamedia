@@ -17,7 +17,7 @@ Then open http://localhost:8080 to see your app. <br>
 * The server file local.js is used to run localhost, while app.js is deployed to the server. 
 
 ## The system ##
-The system consists of erver and client parts.
+The system consists of a server and client.
 
 ### Server ###
 A node.jo server is implemented to provider "rooms" for peers of clients to meet. `socket.io` is applied to implement room-support and simple "vanilla" forwarding of messages between room-members are performed.
