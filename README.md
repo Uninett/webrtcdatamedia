@@ -4,6 +4,18 @@ This WebRTC system attempts to apply the WebRTC datachannel to transmit uncompre
 
 The system attempts to mimic how current music collaboration tools transmit audio over IP-nettworks, i.e. uncompressed and unbuffered. The aim is to achive an audio connection with lower delay (and higher quality) compared to the standard audio channel in WebRTC. 
 
+## Installation Guide ##
+```sh
+* git clone https://github.com/hungqt/PeerAudio.git
+
+npm install
+node local.js
+```
+
+Then open localhost:8080 to see your app. <br>
+
+* The server file local.js is used to run localhost, while app.js is deployed to the server. 
+
 ## The system ##
 The system consists of erver and client parts.
 
