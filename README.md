@@ -6,7 +6,7 @@ The system attempts to mimic how current music collaboration tools transmit audi
 
 ## Installation Guide ##
 ```sh
-* git clone https://github.com/hungqt/PeerAudio.git
+git clone https://github.com/hungqt/PeerAudio.git
 
 npm install
 node local.js
