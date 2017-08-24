@@ -1,11 +1,10 @@
 # WebRTCDataMedia - Multimedia through the WebRTC Data Channel #
 
 Demo: https://webrtc-stud.uninett.no
-```sh
-Submit the room name in the prompt.
-Send the link or the room name to a peer.
-Chat with eachother with audio and video through the WebRTC data channel.
-```
+
+* Submit the room name in the prompt.
+* Send the link or the room name to a peer.
+* Chat with eachother with audio and video through the WebRTC data channel.
 
 This WebRTC system attempts to apply the WebRTC datachannel to transmit uncompressed audio and video between peer-browsers.
 
