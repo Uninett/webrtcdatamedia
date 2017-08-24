@@ -1,6 +1,8 @@
-# PeerAudio - WebRTC data channel audio #
+# WebRTCDataMedia - Multimedia through the WebRTC Data Channel #
 
-This WebRTC system attempts to apply the WebRTC datachannel to transmit uncompressed audio between peer-browsers.
+Demo: https://webrtc-stud.uninett.no
+
+This WebRTC system attempts to apply the WebRTC datachannel to transmit uncompressed audio and video between peer-browsers.
 
 The system attempts to mimic how current music collaboration tools transmit audio over IP-nettworks, i.e. uncompressed and unbuffered. The aim is to achive an audio connection with lower delay (and higher quality) compared to the standard audio channel in WebRTC. 
 
